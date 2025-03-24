@@ -69,6 +69,97 @@ Dự án sử dụng Maven Wrapper nên bạn không cần cài đặt Maven tr�
 
 Truy cập ứng dụng tại `http://localhost:8080` (môi trường phát triển) hoặc `http://localhost:8000` (môi trường sản xuất).
 
+## Triển Khai với Docker
+
+Dự án này được cấu hình để dễ dàng triển khai sử dụng Docker và Docker Compose, giúp đảm bảo môi trường chạy nhất quán và cô lập.
+
+### Yêu Cầu Tiên Quyết
+
+- [Docker](https://docs.docker.com/get-docker/) đã được cài đặt
+- [Docker Compose](https://docs.docker.com/compose/install/) đã được cài đặt (thường đi kèm với Docker Desktop)
+
+### Triển Khai Ứng Dụng với Docker Compose
+
+1. **Sử dụng script triển khai tự động:**
+   ```bash
+   ./docker-deploy.sh
+   ```
+   Script này sẽ tự động kiểm tra Docker, xây dựng và khởi động các containers.
+
+2. **Hoặc build và khởi động các containers theo cách thủ công:**
+   ```bash
+   docker-compose up -d
+   ```
+   
+   Quá trình này sẽ:
+   - Build image Docker cho ứng dụng Spring Boot
+   - Tạo container MySQL với cấu hình đã được thiết lập
+   - Kết nối các containers thông qua mạng nội bộ
+   - Lưu trữ dữ liệu MySQL trong volume Docker để dữ liệu được giữ lại giữa các lần chạy
+
+3. **Xem logs của ứng dụng:**
+   ```bash
+   docker-compose logs -f app
+   ```
+
+4. **Dừng các containers:**
+   ```bash
+   docker-compose down
+   ```
+
+5. **Xóa tất cả các containers và volumes:**
+   ```bash
+   docker-compose down -v
+   ```
+
+### Triển Khai Chỉ Ứng Dụng với Docker
+
+Nếu bạn đã có sẵn MySQL hoặc muốn triển khai ứng dụng riêng biệt:
+
+1. **Build Docker image:**
+   ```bash
+   docker build -t vaccine-management-app .
+   ```
+
+2. **Chạy container:**
+   ```bash
+   docker run -d -p 8080:8080 \
+     -e SPRING_DATASOURCE_URL=jdbc:mysql://your-mysql-host:3306/vaccine_management \
+     -e SPRING_DATASOURCE_USERNAME=your-username \
+     -e SPRING_DATASOURCE_PASSWORD=your-password \
+     --name vaccine-app \
+     vaccine-management-app
+   ```
+
+3. **Xem logs:**
+   ```bash
+   docker logs -f vaccine-app
+   ```
+
+4. **Dừng container:**
+   ```bash
+   docker stop vaccine-app
+   ```
+
+5. **Xóa container:**
+   ```bash
+   docker rm vaccine-app
+   ```
+
+### Môi Trường Production
+
+Để triển khai trong môi trường sản xuất, bạn nên:
+
+1. Sử dụng biến môi trường để cấu hình:
+   - Thông tin kết nối cơ sở dữ liệu
+   - Khóa bí mật JWT
+   - Cấu hình email
+   - Các thông số bảo mật khác
+
+2. Cấu hình HTTPS/TLS (có thể sử dụng Nginx làm reverse proxy)
+
+3. Thiết lập giám sát và ghi log
+
 ## Tài Liệu API
 
 ### Swagger UI
