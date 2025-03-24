@@ -196,7 +196,7 @@
                                                                     <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
                                                                     <div class="d-flex justify-content-between mb-3">
                                                                         <h5 class="card-title" th:text="${service.name}">Tên dịch vụ</h5>
-                                                                        <span class="badge bg-info" th:text="${service.type}">Type</span>
+                                                                        <span class="badge bg-info" th:text="${service.type}">Loại</span>
                                                                     </div>
                                                                     <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Mô tả dịch vụ</p>
                                                                     <div class="mb-3">
@@ -206,7 +206,7 @@
                                                                         </ul>
                                                                     </div>
                                                                     <div class="d-flex justify-content-between">
-                                                                        <span class="fw-bold" th:text="${'$' + service.price}">$100.00</span>
+                                                                        <span class="fw-bold" th:text="${'$' + service.price}">100.000₫</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -223,7 +223,7 @@
                                                                     <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
                                                                     <div class="d-flex justify-content-between mb-3">
                                                                         <h5 class="card-title" th:text="${service.name}">Tên dịch vụ</h5>
-                                                                        <span class="badge bg-success" th:text="${service.type}">Type</span>
+                                                                        <span class="badge bg-success" th:text="${service.type}">Loại</span>
                                                                     </div>
                                                                     <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Mô tả dịch vụ</p>
                                                                     <div class="mb-3">
@@ -233,7 +233,7 @@
                                                                         </ul>
                                                                     </div>
                                                                     <div class="d-flex justify-content-between">
-                                                                        <span class="fw-bold" th:text="${'$' + service.price}">$100.00</span>
+                                                                        <span class="fw-bold" th:text="${'$' + service.price}">100.000₫</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -243,7 +243,7 @@
                                                 
                                                 <div class="tab-pane fade" id="recommended" role="tabpanel">
                                                     <div id="recommended-services" class="row">
-                                                        <!-- This will be populated dynamically with recommended services based on the child's age -->
+                                                        <!-- Phần này sẽ được điền tự động với các dịch vụ được đề xuất dựa trên độ tuổi của trẻ -->
                                                         <div class="col-12 text-center py-4">
                                                             <p class="text-muted">Đang tải dịch vụ được đề xuất...</p>
                                                             <div class="spinner-border text-primary" role="status">
@@ -281,7 +281,7 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Khung giờ có sẵn</label>
                                                     <div id="timeSlots" class="row g-3">
-                                                        <!-- Time slots will be dynamically generated here -->
+                                                        <!-- Các khung giờ sẽ được tạo tự động ở đây -->
                                                         <div class="col-md-4">
                                                             <div class="card text-center p-2 time-slot">
                                                                 <span>09:00</span>
@@ -731,7 +731,7 @@
                                         return;
                                     }
                                     
-                                    // Generate HTML for each recommended service
+                                    // Tạo HTML cho mỗi dịch vụ được đề xuất
                                     let html = '';
                                     recommendedServices.forEach(service => {
                                         html += `
@@ -752,7 +752,7 @@
                                                             </ul>
                                                         </div>
                                                         <div class="d-flex justify-content-between">
-                                                            <span class="fw-bold">$${service.price}</span>
+                                                            <span class="fw-bold">₫${service.price}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -762,24 +762,24 @@
                                     
                                     recommendedServicesContainer.innerHTML = html;
                                     
-                                    // Add click event listeners to the newly created service cards
+                                    // Thêm trình lắng nghe sự kiện click cho các thẻ dịch vụ mới tạo
                                     document.querySelectorAll('#recommended .service-card').forEach(card => {
                                         card.addEventListener('click', function() {
-                                            // Reset previous selection
+                                            // Đặt lại lựa chọn trước đó
                                             serviceCards.forEach(c => c.classList.remove('selected'));
                                             document.querySelectorAll('#recommended .service-card').forEach(c => c.classList.remove('selected'));
                                             
-                                            // Select this card
+                                            // Chọn thẻ này
                                             card.classList.add('selected');
                                             
-                                            // Find the radio input and check it
+                                            // Tìm input radio và chọn nó
                                             const radioInput = card.querySelector('input[type="radio"]');
                                             radioInput.checked = true;
                                             
-                                            // Enable the next button
+                                            // Kích hoạt nút tiếp theo
                                             step2NextBtn.disabled = false;
                                             
-                                            // Update summary
+                                            // Cập nhật tóm tắt
                                             summaryService.textContent = card.querySelector('.card-title').textContent;
                                             summaryPrice.textContent = card.querySelector('.fw-bold').textContent;
                                         });
@@ -819,7 +819,7 @@
                         </div>
                     `;
                     
-                    // Check if the selected date is a weekend
+                    // Kiểm tra xem ngày đã chọn có phải là cuối tuần không
                     const selectedDate = new Date(date);
                     const day = selectedDate.getDay();
                     if (day === 0 || day === 6) { // 0 = Sunday, 6 = Saturday
@@ -833,8 +833,8 @@
                         return;
                     }
                     
-                    // Normally we would fetch available slots from the server
-                    // For this example, we'll generate time slots between 8 AM and 5 PM
+                    // Thông thường chúng ta sẽ lấy các khung giờ khả dụng từ máy chủ
+                    // Trong ví dụ này, chúng ta sẽ tạo các khung giờ từ 8 giờ sáng đến 5 giờ chiều
                     const timeSlots = [];
                     for (let hour = 8; hour < 17; hour++) {
                         for (let minute = 0; minute < 60; minute += 30) {
@@ -845,10 +845,10 @@
                         }
                     }
                     
-                    // Generate HTML for time slots
+                    // Tạo HTML cho các khung giờ
                     let html = '';
                     timeSlots.forEach((slot, index) => {
-                        // Randomly mark some slots as unavailable for demo purposes
+                        // Đánh dấu ngẫu nhiên một số khung giờ là không khả dụng cho mục đích minh họa
                         const isUnavailable = Math.random() < 0.3;
                         html += `
                             <div class="col-md-4 col-6 mb-3">
@@ -861,20 +861,20 @@
                     
                     timeSlotsContainer.innerHTML = html;
                     
-                    // Add click event listeners to the newly created time slots
+                    // Thêm trình lắng nghe sự kiện click cho các khung giờ mới tạo
                     document.querySelectorAll('.time-slot:not(.unavailable)').forEach(slot => {
                         slot.addEventListener('click', function() {
-                            // Reset previous selection
+                            // Đặt lại lựa chọn trước đó
                             document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
                             
-                            // Select this slot
+                            // Chọn khung giờ này
                             slot.classList.add('selected');
                             
-                            // Update the hidden time input
+                            // Cập nhật trường input thời gian ẩn
                             const time = slot.querySelector('span').textContent;
                             const date = appointmentDateInput.value;
                             
-                            // Convert time to 24-hour format for datetime-local input
+                            // Chuyển đổi thời gian sang định dạng 24 giờ cho input datetime-local
                             const timeComponents = time.match(/(\d+):(\d+) ([AP]M)/);
                             let hours = parseInt(timeComponents[1]);
                             const minutes = timeComponents[2];
@@ -890,17 +890,17 @@
                             
                             appointmentTimeInput.value = `${date}T${formattedTime}`;
                             
-                            // Enable the next button
+                            // Kích hoạt nút tiếp theo
                             step3NextBtn.disabled = false;
                             
-                            // Update summary
+                            // Cập nhật tóm tắt
                             const dateObj = new Date(`${date}T${formattedTime}`);
                             summaryDateTime.textContent = dateObj.toLocaleString();
                         });
                     });
                 }
                 
-                // Initialize form with pre-selected values if any
+                // Khởi tạo biểu mẫu với các giá trị đã chọn trước (nếu có)
                 const preSelectedChild = document.querySelector('input[name="childId"]:checked');
                 if (preSelectedChild) {
                     const childCard = preSelectedChild.closest('.child-card');
