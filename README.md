@@ -29,16 +29,64 @@ Hệ thống quản lý tiêm chủng trẻ em toàn diện giúp các cơ sở 
 ## Cài Đặt và Chạy
 
 1. Đảm bảo máy tính đã cài đặt Java 11 hoặc cao hơn và MySQL.
-2. Cấu hình cơ sở dữ liệu trong `src/main/resources/application.properties`.
-3. Chạy ứng dụng với Maven:
+2. Cấu hình cơ sở dữ liệu trong `src/main/resources/application.properties` hoặc `src/main/resources/application-dev.properties`.
+3. Clone dự án:
+   ```bash
+   git clone https://github.com/your-repo/vaccine-management.git
+   cd vaccine-management
+   ```
+
+### Sử Dụng Môi Trường Maven
+
+Dự án sử dụng Maven Wrapper nên bạn không cần cài đặt Maven trên hệ thống.
+
+1. **Chạy ứng dụng trong môi trường phát triển:**
+   ```bash
+   ./run-dev.sh
+   ```
+   Hoặc
+   ```bash
+   ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+   ```
+
+2. **Chạy ứng dụng trong môi trường sản xuất:**
    ```bash
    ./mvnw spring-boot:run
    ```
-4. Truy cập ứng dụng tại `http://localhost:8080`.
+
+3. **Build dự án:**
+   ```bash
+   ./mvnw clean package
+   ```
+
+4. **Chạy các tests:**
+   ```bash
+   ./mvnw test
+   ```
+
+5. **Để cài đặt các phụ thuộc mới:**
+   Thêm phụ thuộc vào tệp `pom.xml` trong phần `<dependencies>`, Maven sẽ tự động tải về khi chạy.
+
+Truy cập ứng dụng tại `http://localhost:8080` (môi trường phát triển) hoặc `http://localhost:8000` (môi trường sản xuất).
 
 ## Tài Liệu API
 
-API RESTful của hệ thống được tài liệu hóa đầy đủ và có thể truy cập tại `/swagger-ui.html` sau khi khởi động ứng dụng.
+### Swagger UI
+
+API RESTful của hệ thống được tài liệu hóa đầy đủ và có thể truy cập tại `/swagger-ui/index.html` sau khi khởi động ứng dụng. Swagger UI cung cấp:
+
+- Danh sách đầy đủ các API endpoints
+- Mô tả chi tiết về các tham số và phản hồi
+- Giao diện tương tác để kiểm thử các API trực tiếp
+
+### Sử Dụng Swagger UI:
+
+1. Khởi động ứng dụng
+2. Truy cập `http://localhost:8080/swagger-ui/index.html` (môi trường phát triển)
+3. Xác thực (nếu cần) bằng cách:
+   - Sử dụng endpoint `/api/auth/login` để nhận JWT token
+   - Nhấp vào nút "Authorize" ở góc phải và nhập token theo định dạng `Bearer your_token_here`
+   - Bây giờ bạn có thể gọi các API được bảo vệ
 
 ## Giấy Phép
 
