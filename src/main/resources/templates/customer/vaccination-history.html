@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Vaccination History - Vaccination Management System</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <!-- Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            <!-- Child Vaccination History Header -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-0 text-gray-800" th:text="${child.fullName + '\'s Vaccination History'}">Child's Vaccination History</h1>
+                <div>
+                    <a th:href="@{'/customer/children/' + ${child.id}}" class="btn btn-primary btn-sm shadow-sm me-2">
+                        <i class="fas fa-user fa-sm text-white-50 me-1"></i> Child Profile
+                    </a>
+                    <a th:href="@{'/customer/appointments/book?childId=' + ${child.id}}" class="btn btn-success btn-sm shadow-sm">
+                        <i class="fas fa-calendar-plus fa-sm text-white-50 me-1"></i> Book Appointment
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Child Info Summary -->
+            <div class="row mb-4">
+                <div class="col-xl-12">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-md-2 text-center border-right">
+                                    <img class="img-profile rounded-circle mb-3" style="width: 80px; height: 80px;"
+                                         src="https://via.placeholder.com/150" alt="Child Profile">
+                                    <div>
+                                        <h5 class="font-weight-bold" th:text="${child.fullName}">Child Name</h5>
+                                        <p class="mb-0 text-muted" th:text="${child.gender == T(com.vaccine.entity.Child.Gender).MALE ? 'Male' : 'Female'}">Gender</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-center">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Date of Birth</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${#temporals.format(child.dateOfBirth, 'MMMM d, yyyy')}">January 1, 2020</div>
+                                        <div class="small text-muted">
+                                            <span th:with="age=${T(java.time.Period).between(child.dateOfBirth, T(java.time.LocalDate).now())}">
+                                                <span th:text="${age.years}">0</span> years
+                                                <span th:text="${age.months}">0</span> months
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-center">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Vaccines Received</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${vaccinations.size()}">0</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-center">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Unique Vaccines</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${vaccinations.stream().map(v -> v.getVaccine().getId()).distinct().count()}">0</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-center">
+                                    <div class="w-100">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Vaccination Progress</div>
+                                        <div class="progress mb-1" style="height: 15px;">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 th:style="${'width: ' + (vaccinations.size() > 0 ? (vaccinations.size() * 100 / (vaccinations.size() + recommendedVaccinations.size())) : 0) + '%'}" 
+                                                 th:attr="aria-valuenow=${vaccinations.size()}, aria-valuemax=${vaccinations.size() + recommendedVaccinations.size()}" 
+                                                 aria-valuemin="0">
+                                                <span th:text="${vaccinations.size() > 0 ? #numbers.formatPercent(vaccinations.size() / (vaccinations.size() + recommendedVaccinations.size()), 1, 0) : '0%'}">0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="small text-muted" th:text="${recommendedVaccinations.size() + ' vaccines recommended'}">0 vaccines recommended</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vaccination Timeline and Recommended Vaccines -->
+            <div class="row">
+                <!-- Vaccination Timeline -->
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Vaccination Timeline</h6>
+                            <div class="dropdown no-arrow">
+                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                    aria-labelledby="dropdownMenuLink">
+                                    <div class="dropdown-header">Export Options:</div>
+                                    <a class="dropdown-item" href="#" id="printVaccinationHistory">
+                                        <i class="fas fa-print fa-sm fa-fw me-2 text-gray-400"></i>Print History
+                                    </a>
+                                    <a class="dropdown-item" th:href="@{'/customer/vaccinations/export/pdf/' + ${child.id}}">
+                                        <i class="fas fa-file-pdf fa-sm fa-fw me-2 text-gray-400"></i>Export as PDF
+                                    </a>
+                                    <a class="dropdown-item" th:href="@{'/customer/vaccinations/export/csv/' + ${child.id}}">
+                                        <i class="fas fa-file-csv fa-sm fa-fw me-2 text-gray-400"></i>Export as CSV
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${!vaccinations.isEmpty()}" id="vaccination-timeline">
+                                <div class="timeline-container">
+                                    <div th:each="vaccination, iterStat : ${vaccinations}" class="timeline-item">
+                                        <div class="timeline-item-content">
+                                            <span class="timeline-item-date" th:text="${#temporals.format(vaccination.vaccinationDate, 'MMM d, yyyy')}">Jan 1, 2023</span>
+                                            <div class="card border-left-primary shadow h-100 py-0">
+                                                <div class="card-body py-2">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="font-weight-bold text-primary mb-1" th:text="${vaccination.vaccine.name}">Vaccine Name</div>
+                                                            <div class="mb-0 text-muted">
+                                                                Dose <span th:text="${vaccination.doseNumber}">1</span> of 
+                                                                <span th:text="${vaccination.vaccine.dosesRequired ?: '1'}">1</span>
+                                                            </div>
+                                                            <div class="small text-muted" th:if="${vaccination.administeredBy != null && !vaccination.administeredBy.isEmpty()}">
+                                                                Administered by: <span th:text="${vaccination.administeredBy}">Dr. Smith</span>
+                                                            </div>
+                                                            <div class="small text-muted" th:if="${vaccination.administeredAt != null && !vaccination.administeredAt.isEmpty()}">
+                                                                Location: <span th:text="${vaccination.administeredAt}">Main Clinic</span>
+                                                            </div>
+                                                            <div class="small text-danger" th:if="${vaccination.sideEffectsReported != null && !vaccination.sideEffectsReported.isEmpty()}">
+                                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                                                <span th:text="${vaccination.sideEffectsReported}">Side effects reported</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <a th:href="@{'/customer/vaccinations/' + ${vaccination.id}}" class="btn btn-sm btn-primary">
+                                                                <i class="fas fa-eye fa-sm"></i> Details
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span class="timeline-item-circle">
+                                                <i class="fas fa-syringe"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${vaccinations.isEmpty()}" class="text-center py-5">
+                                <i class="fas fa-syringe fa-3x text-muted mb-3"></i>
+                                <h5>No Vaccination Records</h5>
+                                <p class="text-muted">Your child doesn't have any vaccination records yet.</p>
+                                <a th:href="@{'/customer/appointments/book?childId=' + ${child.id}}" class="btn btn-primary">
+                                    Schedule First Vaccination
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recommended Vaccinations -->
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Recommended Vaccinations</h6>
+                            <span class="badge bg-warning" th:text="${recommendedVaccinations.size() + ' Due'}">0 Due</span>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${!recommendedVaccinations.isEmpty()}" class="recommended-vaccines">
+                                <div th:each="vaccination : ${recommendedVaccinations}" class="mb-3 pb-3 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-0" th:text="${vaccination.vaccine.name}">Vaccine Name</h6>
+                                            <div class="small text-muted">
+                                                Dose <span th:text="${vaccination.doseNumber}">1</span> of 
+                                                <span th:text="${vaccination.vaccine.dosesRequired ?: '1'}">1</span>
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-info">Recommended</span>
+                                    </div>
+                                    <p class="small mb-2" th:text="${#strings.abbreviate(vaccination.vaccine.description, 150)}">Vaccine description</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="small text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Age: 
+                                            <span th:if="${vaccination.vaccine.minAgeMonths != null}" th:text="${vaccination.vaccine.minAgeMonths + ' months'}">0 months</span>
+                                            <span th:if="${vaccination.vaccine.minAgeMonths != null && vaccination.vaccine.maxAgeMonths != null}">-</span>
+                                            <span th:if="${vaccination.vaccine.maxAgeMonths != null}" th:text="${vaccination.vaccine.maxAgeMonths + ' months'}">0 months</span>
+                                        </div>
+                                        <a th:href="@{'/customer/appointments/book?childId=' + ${child.id} + '&vaccineId=' + ${vaccination.vaccine.id}}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-calendar-plus fa-sm"></i> Schedule
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${recommendedVaccinations.isEmpty()}" class="text-center py-5">
+                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                <h5>All Caught Up!</h5>
+                                <p class="text-muted">Your child is up to date with all recommended vaccinations for their age.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Vaccination Info Card -->
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Vaccination Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6>Why Vaccinate?</h6>
+                                <p class="small">Vaccines protect children from serious illnesses and complications of vaccine-preventable diseases.</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>Common Side Effects</h6>
+                                <ul class="small">
+                                    <li>Soreness at the injection site</li>
+                                    <li>Low-grade fever</li>
+                                    <li>Fussiness or irritability</li>
+                                </ul>
+                                <p class="small">Most side effects are mild and go away within a few days.</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>When to Call a Doctor</h6>
+                                <ul class="small">
+                                    <li>High fever (over 102°F)</li>
+                                    <li>Excessive crying or unusual high-pitched crying</li>
+                                    <li>Severe vomiting or diarrhea</li>
+                                    <li>Seizures</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <a href="/vaccine-guide" class="btn btn-info btn-sm btn-block">
+                                    <i class="fas fa-book-medical me-1"></i> Vaccination Guide
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Print vaccination history
+                document.getElementById('printVaccinationHistory').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.print();
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

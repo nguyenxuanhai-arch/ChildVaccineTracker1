@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Notifications - Vaccination Management System</title>
+    <style>
+        .notification-item {
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .notification-item:hover {
+            background-color: #f8f9fc;
+            transform: translateX(5px);
+        }
+        .notification-item.unread {
+            border-left-color: #4e73df;
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .icon-appointment {
+            background-color: #4e73df;
+        }
+        .icon-vaccination {
+            background-color: #1cc88a;
+        }
+        .icon-system {
+            background-color: #36b9cc;
+        }
+        .icon-schedule {
+            background-color: #f6c23e;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">Notifications</h1>
+            
+            <!-- Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            <!-- Notification Actions Card -->
+            <div class="card shadow mb-4">
+                <div class="card-body d-sm-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            <i class="fas fa-bell fa-sm me-1"></i> Notification Center
+                        </span>
+                        <span class="badge bg-primary ms-2" th:text="${notifications.stream().filter(n -> !n.isRead()).count() + ' Unread'}">0 Unread</span>
+                    </div>
+                    <div class="mt-2 mt-sm-0">
+                        <form th:action="@{/customer/notifications/mark-all-read}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-primary" 
+                                    th:disabled="${notifications.stream().noneMatch(n -> !n.isRead())}">
+                                <i class="fas fa-check-double me-1"></i> Mark All as Read
+                            </button>
+                        </form>
+                        <div class="btn-group ms-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-filter me-1"></i> Filter
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" id="filter-all">All Notifications</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" id="filter-unread">Unread Only</a></li>
+                                <li><a class="dropdown-item" href="#" id="filter-read">Read Only</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" id="filter-appointment">Appointment Reminders</a></li>
+                                <li><a class="dropdown-item" href="#" id="filter-vaccination">Vaccination Reminders</a></li>
+                                <li><a class="dropdown-item" href="#" id="filter-system">System Notifications</a></li>
+                                <li><a class="dropdown-item" href="#" id="filter-schedule">Schedule Changes</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications List Card -->
+            <div class="card shadow mb-4">
+                <div class="card-body p-0">
+                    <div class="notification-list">
+                        <div th:if="${!notifications.isEmpty()}" id="notificationItems">
+                            <div th:each="notification : ${notifications}" 
+                                 th:class="${'notification-item p-3 border-bottom ' + (!notification.isRead() ? 'unread' : '')}"
+                                 th:data-type="${notification.type}">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <div class="notification-icon" 
+                                             th:classappend="${
+                                                 notification.type == T(com.vaccine.entity.Notification.NotificationType).APPOINTMENT_REMINDER ? 'icon-appointment' :
+                                                 notification.type == T(com.vaccine.entity.Notification.NotificationType).VACCINATION_DUE ? 'icon-vaccination' :
+                                                 notification.type == T(com.vaccine.entity.Notification.NotificationType).SYSTEM_NOTIFICATION ? 'icon-system' :
+                                                 'icon-schedule'
+                                             }">
+                                            <i class="fas" 
+                                               th:classappend="${
+                                                   notification.type == T(com.vaccine.entity.Notification.NotificationType).APPOINTMENT_REMINDER ? 'fa-calendar-check' :
+                                                   notification.type == T(com.vaccine.entity.Notification.NotificationType).VACCINATION_DUE ? 'fa-syringe' :
+                                                   notification.type == T(com.vaccine.entity.Notification.NotificationType).SYSTEM_NOTIFICATION ? 'fa-info-circle' :
+                                                   'fa-calendar-times'
+                                               }"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <h6 class="mb-0 fw-bold" th:text="${notification.title}">Notification Title</h6>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge" 
+                                                      th:classappend="${
+                                                          notification.type == T(com.vaccine.entity.Notification.NotificationType).APPOINTMENT_REMINDER ? 'bg-primary' :
+                                                          notification.type == T(com.vaccine.entity.Notification.NotificationType).VACCINATION_DUE ? 'bg-success' :
+                                                          notification.type == T(com.vaccine.entity.Notification.NotificationType).SYSTEM_NOTIFICATION ? 'bg-info' :
+                                                          'bg-warning'
+                                                      }" 
+                                                      th:text="${#strings.replace(notification.type.name(), '_', ' ')}">TYPE</span>
+                                                <small class="text-muted ms-2" th:text="${#temporals.format(notification.createdAt, 'MMM d, yyyy h:mm a')}">Jan 1, 2023</small>
+                                            </div>
+                                        </div>
+                                        <p class="mb-2" th:text="${notification.message}">Notification message text</p>
+                                        <div class="d-flex justify-content-end">
+                                            <form th:if="${!notification.isRead()}" 
+                                                  th:action="@{'/customer/notifications/' + ${notification.id} + '/mark-read'}" 
+                                                  method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-check me-1"></i> Mark as Read
+                                                </button>
+                                            </form>
+                                            <form th:action="@{'/customer/notifications/' + ${notification.id} + '/delete'}" 
+                                                  method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="return confirm('Are you sure you want to delete this notification?')">
+                                                    <i class="fas fa-trash me-1"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${notifications.isEmpty()}" class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                            <h5>No Notifications</h5>
+                            <p class="text-muted">You don't have any notifications at the moment.</p>
+                        </div>
+                        
+                        <div id="emptyFilterResult" class="text-center py-5" style="display: none;">
+                            <i class="fas fa-filter fa-3x text-muted mb-3"></i>
+                            <h5>No Matching Notifications</h5>
+                            <p class="text-muted">No notifications match your current filter.</p>
+                            <button id="clearFilter" class="btn btn-primary btn-sm">
+                                <i class="fas fa-times me-1"></i> Clear Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification Settings Card -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Notification Settings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h6 class="font-weight-bold">Email Notifications</h6>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="emailAppointments" checked>
+                                <label class="form-check-label" for="emailAppointments">Appointment Reminders</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="emailVaccinations" checked>
+                                <label class="form-check-label" for="emailVaccinations">Vaccination Due Dates</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="emailSystem" checked>
+                                <label class="form-check-label" for="emailSystem">System Notifications</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="emailScheduleChanges" checked>
+                                <label class="form-check-label" for="emailScheduleChanges">Schedule Changes</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <h6 class="font-weight-bold">Push Notifications</h6>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="pushAppointments" checked>
+                                <label class="form-check-label" for="pushAppointments">Appointment Reminders</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="pushVaccinations" checked>
+                                <label class="form-check-label" for="pushVaccinations">Vaccination Due Dates</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="pushSystem" checked>
+                                <label class="form-check-label" for="pushSystem">System Notifications</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="pushScheduleChanges" checked>
+                                <label class="form-check-label" for="pushScheduleChanges">Schedule Changes</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button type="button" id="saveNotificationSettings" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Filter notifications
+                const notificationItems = document.querySelectorAll('.notification-item');
+                const emptyFilterResult = document.getElementById('emptyFilterResult');
+                
+                function filterNotifications(filter) {
+                    let visibleCount = 0;
+                    
+                    notificationItems.forEach(item => {
+                        switch(filter) {
+                            case 'all':
+                                item.style.display = '';
+                                visibleCount++;
+                                break;
+                            case 'unread':
+                                if (item.classList.contains('unread')) {
+                                    item.style.display = '';
+                                    visibleCount++;
+                                } else {
+                                    item.style.display = 'none';
+                                }
+                                break;
+                            case 'read':
+                                if (!item.classList.contains('unread')) {
+                                    item.style.display = '';
+                                    visibleCount++;
+                                } else {
+                                    item.style.display = 'none';
+                                }
+                                break;
+                            case 'appointment':
+                            case 'vaccination':
+                            case 'system':
+                            case 'schedule':
+                                const type = item.getAttribute('data-type');
+                                const filterType = filter.toUpperCase() === 'APPOINTMENT' ? 'APPOINTMENT_REMINDER' :
+                                                  filter.toUpperCase() === 'VACCINATION' ? 'VACCINATION_DUE' :
+                                                  filter.toUpperCase() === 'SYSTEM' ? 'SYSTEM_NOTIFICATION' :
+                                                  'SCHEDULE_CHANGE';
+                                
+                                if (type === filterType) {
+                                    item.style.display = '';
+                                    visibleCount++;
+                                } else {
+                                    item.style.display = 'none';
+                                }
+                                break;
+                        }
+                    });
+                    
+                    // Show empty message if no results
+                    if (visibleCount === 0 && notificationItems.length > 0) {
+                        emptyFilterResult.style.display = 'block';
+                    } else {
+                        emptyFilterResult.style.display = 'none';
+                    }
+                }
+                
+                // Filter event listeners
+                document.getElementById('filter-all').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterNotifications('all');
+                });
+                
+                document.getElementById('filter-unread').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterNotifications('unread');
+                });
+                
+                document.getElementById('filter-read').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterNotifications('read');
+                });
+                
+                document.getElementById('filter-appointment').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterNotifications('appointment');
+                });
+                
+                document.getElementById('filter-vaccination').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterNotifications('vaccination');
+                });
+                
+                document.getElementById('filter-system').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterNotifications('system');
+                });
+                
+                document.getElementById('filter-schedule').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterNotifications('schedule');
+                });
+                
+                // Clear filter
+                document.getElementById('clearFilter').addEventListener('click', function() {
+                    filterNotifications('all');
+                });
+                
+                // Save notification settings
+                document.getElementById('saveNotificationSettings').addEventListener('click', function() {
+                    // In a real application, this would send the settings to the server
+                    // For now, just show a success message
+                    alert('Notification settings saved successfully!');
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

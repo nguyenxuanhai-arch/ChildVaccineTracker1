@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Home - Vaccination Management System</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Hero Section -->
+        <div class="container-fluid p-0">
+            <div class="hero-section text-center text-white p-5">
+                <h1 class="display-4">Welcome to Our Vaccination Center</h1>
+                <p class="lead">Protecting your children's health with quality vaccination services</p>
+                <a href="/services" class="btn btn-primary btn-lg">Our Services</a>
+                <a href="/register" class="btn btn-outline-light btn-lg ms-2">Register Now</a>
+            </div>
+        </div>
+        
+        <!-- About Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h2 class="section-heading">Why Choose Our Vaccination Center</h2>
+                        <hr class="divider my-4">
+                        <p class="text-muted mb-5">We provide comprehensive vaccination services for children of all ages, 
+                            ensuring they receive the right vaccines at the right time. Our center follows the highest 
+                            standards of safety and care.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-user-md text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Expert Staff</h3>
+                            <p class="text-muted mb-0">Our team consists of certified medical professionals specialized in pediatric care.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-clinic-medical text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Modern Facility</h3>
+                            <p class="text-muted mb-0">State-of-the-art facility with proper storage and handling of vaccines.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-calendar-check text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Easy Scheduling</h3>
+                            <p class="text-muted mb-0">Book appointments online and receive timely reminders for vaccinations.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-heartbeat text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Comprehensive Care</h3>
+                            <p class="text-muted mb-0">Complete vaccination plans customized for your child's needs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Services Section -->
+        <section class="bg-light py-5">
+            <div class="container">
+                <h2 class="text-center mb-4">Our Services</h2>
+                <div class="row">
+                    <div th:each="service : ${services}" th:if="${service.active}" class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                <p class="card-text" th:text="${#strings.abbreviate(service.description, 150)}">Service description</p>
+                                <p class="card-text font-weight-bold" th:text="${'$' + service.price}">$0.00</p>
+                                <a th:href="@{'/services/' + ${service.id}}" class="btn btn-primary">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="/services" class="btn btn-outline-primary">View All Services</a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Testimonials Section -->
+        <section class="py-5">
+            <div class="container">
+                <h2 class="text-center mb-4">What Parents Say</h2>
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="text-center mb-3">
+                            <div class="mb-2">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i th:if="${averageRating % 1 >= 0.5}" class="fas fa-star-half-alt text-warning"></i>
+                                <i th:if="${averageRating % 1 < 0.5}" class="far fa-star text-warning"></i>
+                            </div>
+                            <h3 class="h4" th:text="${#numbers.formatDecimal(averageRating, 1, 1)} + ' out of 5'">4.5 out of 5</h3>
+                            <p class="text-muted" th:text="${highRatingsCount} + ' parents gave us 4+ stars'">100 parents gave us 4+ stars</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call-to-Action Section -->
+        <section class="bg-primary text-white py-5">
+            <div class="container text-center">
+                <h2 class="mb-4">Register and Book Your Child's Vaccination Today</h2>
+                <a href="/register" class="btn btn-light btn-xl me-3">Register Now</a>
+                <a href="/vaccine-guide" class="btn btn-outline-light btn-xl">Learn About Vaccines</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Appointment Management - Vaccination Management System</title>
+    <style>
+        .appointment-card {
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .appointment-card:hover {
+            transform: translateY(-3px);
+        }
+        .appointment-status-SCHEDULED {
+            border-left-color: #4e73df;
+        }
+        .appointment-status-CONFIRMED {
+            border-left-color: #1cc88a;
+        }
+        .appointment-status-COMPLETED {
+            border-left-color: #36b9cc;
+        }
+        .appointment-status-CANCELLED {
+            border-left-color: #e74a3b;
+        }
+        .appointment-status-NO_SHOW {
+            border-left-color: #f6c23e;
+        }
+        .calendar-day {
+            min-height: 120px;
+            background-color: #f8f9fc;
+            border: 1px solid #e3e6f0;
+        }
+        .calendar-day.today {
+            background-color: rgba(78, 115, 223, 0.1);
+            border: 1px solid #4e73df;
+        }
+        .calendar-day.other-month {
+            background-color: #f0f0f0;
+            color: #888;
+        }
+        .calendar-day-header {
+            font-weight: bold;
+            padding: 5px;
+            border-bottom: 1px solid #e3e6f0;
+            background-color: #fff;
+        }
+        .calendar-appointments {
+            padding: 5px;
+            overflow-y: auto;
+            max-height: 100px;
+        }
+        .calendar-date {
+            font-size: 0.9rem;
+            padding: 2px 5px;
+            border-radius: 50%;
+        }
+        .calendar-date.today {
+            background-color: #4e73df;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">Appointment Management</h1>
+            
+            <!-- Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            <!-- View Controls and Filters -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary active" id="view-day">Day</button>
+                                <button type="button" class="btn btn-outline-primary" id="view-week">Week</button>
+                                <button type="button" class="btn btn-outline-primary" id="view-month">Month</button>
+                                <button type="button" class="btn btn-outline-primary" id="view-list">List</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <form th:action="@{/staff/appointments}" method="get" class="d-flex">
+                                <div class="input-group me-2">
+                                    <span class="input-group-text">Status</span>
+                                    <select class="form-select" name="status">
+                                        <option value="">All</option>
+                                        <option th:each="statusOption : ${T(com.vaccine.entity.Appointment.Status).values()}"
+                                                th:value="${statusOption}" th:text="${statusOption}"
+                                                th:selected="${statusOption == currentStatus}">Status</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary" type="button" id="prevDate">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <input type="date" class="form-control" id="appointmentDate" name="appointmentDate"
+                                       th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                                <button class="btn btn-outline-secondary" type="button" id="nextDate">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button class="btn btn-outline-primary" type="button" id="todayBtn">Today</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-md-end mt-3 mt-md-0">
+                                <div class="me-3">
+                                    <span class="badge bg-primary p-2">Scheduled</span>
+                                </div>
+                                <div class="me-3">
+                                    <span class="badge bg-info p-2">Confirmed</span>
+                                </div>
+                                <div class="me-3">
+                                    <span class="badge bg-success p-2">Completed</span>
+                                </div>
+                                <div class="me-3">
+                                    <span class="badge bg-danger p-2">Cancelled</span>
+                                </div>
+                                <div>
+                                    <span class="badge bg-warning p-2">No Show</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day View (Default) -->
+            <div id="day-view">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary" id="day-view-title">Today's Appointments</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="timeline-container">
+                                    <div th:each="hour : ${#numbers.sequence(8, 17)}" class="mb-3" th:id="${'hour-' + hour}">
+                                        <div class="d-flex">
+                                            <div class="text-center me-3" style="width: 60px;">
+                                                <div class="font-weight-bold" th:text="${hour + ':00'}">8:00</div>
+                                                <div class="small text-muted" th:text="${hour < 12 ? 'AM' : 'PM'}">AM</div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="hour-slot p-2 border rounded" style="min-height: 50px;" th:id="${'slot-' + hour}">
+                                                    <!-- Appointments will be dynamically placed here -->
+                                                    <div th:each="appointment : ${appointments}" 
+                                                         th:if="${appointment.appointmentDate.getHour() == hour}" 
+                                                         class="p-2 rounded mb-2"
+                                                         th:classappend="${
+                                                             appointment.status == T(com.vaccine.entity.Appointment.Status).SCHEDULED ? 'bg-primary text-white' : 
+                                                             appointment.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED ? 'bg-info text-white' : 
+                                                             appointment.status == T(com.vaccine.entity.Appointment.Status).COMPLETED ? 'bg-success text-white' : 
+                                                             appointment.status == T(com.vaccine.entity.Appointment.Status).CANCELLED ? 'bg-danger text-white' : 
+                                                             'bg-warning text-white'
+                                                         }">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <strong th:text="${#temporals.format(appointment.appointmentDate, 'HH:mm')}">08:00</strong>
+                                                                - <span th:text="${appointment.child.fullName}">Child Name</span>
+                                                            </div>
+                                                            <a th:href="@{'/staff/appointments/' + ${appointment.id}}" class="btn btn-sm btn-light">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                        </div>
+                                                        <div class="small" th:text="${appointment.service.name}">Service</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <div class="card mb-4 border-bottom-primary" id="appointment-stats">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    Today's Appointments</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${appointments.size()}">0</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <button class="btn btn-primary btn-block" data-bs-toggle="modal" data-bs-target="#checkInModal">
+                                                <i class="fas fa-user-check me-1"></i> Check In Patient
+                                            </button>
+                                        </div>
+                                        <div class="mb-3">
+                                            <button class="btn btn-success btn-block" data-bs-toggle="modal" data-bs-target="#recordVaccinationModal">
+                                                <i class="fas fa-syringe me-1"></i> Record Vaccination
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-info btn-block" data-bs-toggle="modal" data-bs-target="#processPaymentModal">
+                                                <i class="fas fa-credit-card me-1"></i> Process Payment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Week View (Hidden by default) -->
+            <div id="week-view" class="d-none">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary" id="week-view-title">This Week's Appointments</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="text-center font-weight-bold mb-2">Monday</div>
+                                <div class="calendar-day" id="week-day-1">
+                                    <!-- Appointments will be placed here -->
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="text-center font-weight-bold mb-2">Tuesday</div>
+                                <div class="calendar-day" id="week-day-2">
+                                    <!-- Appointments will be placed here -->
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="text-center font-weight-bold mb-2">Wednesday</div>
+                                <div class="calendar-day" id="week-day-3">
+                                    <!-- Appointments will be placed here -->
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="text-center font-weight-bold mb-2">Thursday</div>
+                                <div class="calendar-day" id="week-day-4">
+                                    <!-- Appointments will be placed here -->
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="text-center font-weight-bold mb-2">Friday</div>
+                                <div class="calendar-day" id="week-day-5">
+                                    <!-- Appointments will be placed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Month View (Hidden by default) -->
+            <div id="month-view" class="d-none">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary" id="month-view-title">Monthly Calendar</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col text-center">Sun</div>
+                            <div class="col text-center">Mon</div>
+                            <div class="col text-center">Tue</div>
+                            <div class="col text-center">Wed</div>
+                            <div class="col text-center">Thu</div>
+                            <div class="col text-center">Fri</div>
+                            <div class="col text-center">Sat</div>
+                        </div>
+                        <div id="calendar-grid">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- List View (Hidden by default) -->
+            <div id="list-view" class="d-none">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary" id="list-view-title">All Appointments</h6>
+                        <div>
+                            <form class="d-flex" id="dateRangeForm">
+                                <div class="input-group input-group-sm me-2">
+                                    <span class="input-group-text">From</span>
+                                    <input type="date" class="form-control" id="startDate" name="startDate">
+                                </div>
+                                <div class="input-group input-group-sm me-2">
+                                    <span class="input-group-text">To</span>
+                                    <input type="date" class="form-control" id="endDate" name="endDate">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="appointmentsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Child</th>
+                                        <th>Service</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="appointment : ${appointments}">
+                                        <td th:text="${#temporals.format(appointment.appointmentDate, 'yyyy-MM-dd HH:mm')}">2023-01-01 09:00</td>
+                                        <td>
+                                            <span th:text="${appointment.child.fullName}">Child Name</span>
+                                            <br>
+                                            <small class="text-muted" th:text="${'Parent: ' + appointment.child.parent.fullName}">Parent Name</small>
+                                        </td>
+                                        <td th:text="${appointment.service.name}">Service Name</td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${
+                                                    appointment.status == T(com.vaccine.entity.Appointment.Status).COMPLETED ? 'bg-success' : 
+                                                    appointment.status == T(com.vaccine.entity.Appointment.Status).SCHEDULED ? 'bg-primary' : 
+                                                    appointment.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED ? 'bg-info' : 
+                                                    appointment.status == T(com.vaccine.entity.Appointment.Status).CANCELLED ? 'bg-danger' : 'bg-warning'
+                                                  }"
+                                                  th:text="${appointment.status}">STATUS</span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${appointment.payment != null}" class="badge"
+                                                  th:classappend="${
+                                                    appointment.payment.status == T(com.vaccine.entity.Payment.PaymentStatus).COMPLETED ? 'bg-success' : 
+                                                    appointment.payment.status == T(com.vaccine.entity.Payment.PaymentStatus).PENDING ? 'bg-warning' : 
+                                                    appointment.payment.status == T(com.vaccine.entity.Payment.PaymentStatus).REFUNDED ? 'bg-info' : 'bg-danger'
+                                                  }"
+                                                  th:text="${appointment.payment.status}">Payment Status</span>
+                                            <span th:if="${appointment.payment == null}" class="badge bg-secondary">NO PAYMENT</span>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" th:href="@{'/staff/appointments/' + ${appointment.id}}">
+                                                            <i class="fas fa-eye fa-sm"></i> View Details
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item update-status-btn" 
+                                                                th:data-appointment-id="${appointment.id}" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#updateStatusModal">
+                                                            <i class="fas fa-edit fa-sm"></i> Update Status
+                                                        </button>
+                                                    </li>
+                                                    <li th:if="${appointment.payment == null || appointment.payment.status != T(com.vaccine.entity.Payment.PaymentStatus).COMPLETED}">
+                                                        <button class="dropdown-item process-payment-btn" 
+                                                                th:data-appointment-id="${appointment.id}" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#processPaymentModal">
+                                                            <i class="fas fa-dollar-sign fa-sm"></i> Process Payment
+                                                        </button>
+                                                    </li>
+                                                    <li th:if="${appointment.status != T(com.vaccine.entity.Appointment.Status).CANCELLED}">
+                                                        <button class="dropdown-item cancel-appointment-btn" 
+                                                                th:data-appointment-id="${appointment.id}" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#cancelAppointmentModal">
+                                                            <i class="fas fa-ban fa-sm"></i> Cancel Appointment
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modals -->
+            <!-- Check In Modal -->
+            <div class="modal fade" id="checkInModal" tabindex="-1" aria-labelledby="checkInModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="checkInModalLabel">Check In Patient</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="appointmentSelect" class="form-label">Select Appointment</label>
+                                <select class="form-select" id="appointmentSelect">
+                                    <option value="">-- Select Appointment --</option>
+                                    <option th:each="appt : ${appointments}" 
+                                            th:if="${appt.status == T(com.vaccine.entity.Appointment.Status).SCHEDULED}"
+                                            th:value="${appt.id}"
+                                            th:text="${#temporals.format(appt.appointmentDate, 'HH:mm') + ' - ' + appt.child.fullName}">
+                                        Appointment
+                                    </option>
+                                </select>
+                            </div>
+                            <div id="appointmentDetails" class="d-none">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title" id="child-name">Child Name</h6>
+                                        <p class="card-text">
+                                            <strong>Parent:</strong> <span id="parent-name">Parent Name</span><br>
+                                            <strong>Service:</strong> <span id="service-name">Service Name</span><br>
+                                            <strong>Time:</strong> <span id="appointment-time">Time</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="confirmCheckIn">
+                                    <label class="form-check-label" for="confirmCheckIn">
+                                        Confirm patient has arrived for their appointment
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="checkInBtn" disabled>Check In</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Update Status Modal -->
+            <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateStatusModalLabel">Update Appointment Status</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="updateStatusForm" th:action="@{/staff/appointments/0/status}" method="post">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="appointmentStatus" class="form-label">New Status</label>
+                                    <select class="form-select" id="appointmentStatus" name="status" required>
+                                        <option value="">-- Select Status --</option>
+                                        <option th:each="statusOption : ${T(com.vaccine.entity.Appointment.Status).values()}"
+                                                th:value="${statusOption}" th:text="${statusOption}">Status</option>
+                                    </select>
+                                </div>
+                                <div id="appointment-details-container"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Update Status</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Process Payment Modal -->
+            <div class="modal fade" id="processPaymentModal" tabindex="-1" aria-labelledby="processPaymentModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="processPaymentModalLabel">Process Payment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="processPaymentForm" th:action="@{/staff/appointments/0/complete-payment}" method="post">
+                            <div class="modal-body">
+                                <div class="mb-3" id="payment-appointment-select-container">
+                                    <label for="paymentAppointmentSelect" class="form-label">Select Appointment</label>
+                                    <select class="form-select" id="paymentAppointmentSelect">
+                                        <option value="">-- Select Appointment --</option>
+                                        <option th:each="appt : ${appointments}" 
+                                                th:if="${appt.status != T(com.vaccine.entity.Appointment.Status).CANCELLED && (appt.payment == null || appt.payment.status != T(com.vaccine.entity.Payment.PaymentStatus).COMPLETED)}"
+                                                th:value="${appt.id}"
+                                                th:text="${#temporals.format(appt.appointmentDate, 'HH:mm') + ' - ' + appt.child.fullName}">
+                                            Appointment
+                                        </option>
+                                    </select>
+                                </div>
+                                <div id="payment-details" class="d-none">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title" id="payment-child-name">Child Name</h6>
+                                            <p class="card-text">
+                                                <strong>Service:</strong> <span id="payment-service-name">Service Name</span><br>
+                                                <strong>Amount:</strong> <span id="payment-amount">$0.00</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="paymentMethod" class="form-label">Payment Method</label>
+                                        <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                                            <option value="">-- Select Payment Method --</option>
+                                            <option th:each="methodOption : ${T(com.vaccine.entity.Payment.PaymentMethod).values()}"
+                                                    th:value="${methodOption}" th:text="${methodOption}">Method</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="transactionId" class="form-label">Transaction ID (optional)</label>
+                                        <input type="text" class="form-control" id="transactionId" name="transactionId">
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="completeAppointment" checked>
+                                        <label class="form-check-label" for="completeAppointment">
+                                            Mark appointment as completed
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" id="processPaymentBtn" disabled>Process Payment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cancel Appointment Modal -->
+            <div class="modal fade" id="cancelAppointmentModal" tabindex="-1" aria-labelledby="cancelAppointmentModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cancelAppointmentModalLabel">Cancel Appointment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="cancelAppointmentForm" th:action="@{/staff/appointments/0/cancel}" method="post">
+                            <div class="modal-body">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> 
+                                    Are you sure you want to cancel this appointment? This action cannot be undone.
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason for Cancellation</label>
+                                    <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifyPatient" checked>
+                                    <label class="form-check-label" for="notifyPatient">
+                                        Notify patient about cancellation
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Cancel Appointment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Record Vaccination Modal -->
+            <div class="modal fade" id="recordVaccinationModal" tabindex="-1" aria-labelledby="recordVaccinationModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="recordVaccinationModalLabel">Quick Vaccination Record</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-1"></i> 
+                                Use this form for quick recording of vaccinations. For more detailed records, please go to the Vaccination Records page.
+                            </div>
+                            <div class="mb-3">
+                                <label for="vaccinationAppointmentSelect" class="form-label">Select Appointment</label>
+                                <select class="form-select" id="vaccinationAppointmentSelect">
+                                    <option value="">-- Select Appointment --</option>
+                                    <option th:each="appt : ${appointments}" 
+                                            th:if="${appt.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED}"
+                                            th:value="${appt.id}"
+                                            th:text="${#temporals.format(appt.appointmentDate, 'HH:mm') + ' - ' + appt.child.fullName}">
+                                        Appointment
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="vaccinationDate" class="form-label">Vaccination Date</label>
+                                    <input type="date" class="form-control" id="vaccinationDate" name="vaccinationDate"
+                                          th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="administeredBy" class="form-label">Administered By</label>
+                                    <input type="text" class="form-control" id="administeredBy" name="administeredBy">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="batchNumber" class="form-label">Batch Number</label>
+                                    <input type="text" class="form-control" id="batchNumber" name="batchNumber">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="nextDoseDate" class="form-label">Next Dose Date (if applicable)</label>
+                                    <input type="date" class="form-control" id="nextDoseDate" name="nextDoseDate">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="completeAppointmentVaccination" checked>
+                                <label class="form-check-label" for="completeAppointmentVaccination">
+                                    Mark appointment as completed
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <a href="/staff/vaccinations/record" class="btn btn-outline-primary">Go to Detailed Form</a>
+                            <button type="button" class="btn btn-primary" id="recordVaccinationBtn">Record Vaccination</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize DataTable for list view
+                const appointmentsTable = $('#appointmentsTable').DataTable({
+                    order: [[0, 'asc']]
+                });
+                
+                // View switching
+                const viewDay = document.getElementById('view-day');
+                const viewWeek = document.getElementById('view-week');
+                const viewMonth = document.getElementById('view-month');
+                const viewList = document.getElementById('view-list');
+                
+                const dayView = document.getElementById('day-view');
+                const weekView = document.getElementById('week-view');
+                const monthView = document.getElementById('month-view');
+                const listView = document.getElementById('list-view');
+                
+                viewDay.addEventListener('click', function() {
+                    dayView.classList.remove('d-none');
+                    weekView.classList.add('d-none');
+                    monthView.classList.add('d-none');
+                    listView.classList.add('d-none');
+                    
+                    viewDay.classList.add('active');
+                    viewWeek.classList.remove('active');
+                    viewMonth.classList.remove('active');
+                    viewList.classList.remove('active');
+                    
+                    loadDayView();
+                });
+                
+                viewWeek.addEventListener('click', function() {
+                    dayView.classList.add('d-none');
+                    weekView.classList.remove('d-none');
+                    monthView.classList.add('d-none');
+                    listView.classList.add('d-none');
+                    
+                    viewDay.classList.remove('active');
+                    viewWeek.classList.add('active');
+                    viewMonth.classList.remove('active');
+                    viewList.classList.remove('active');
+                    
+                    loadWeekView();
+                });
+                
+                viewMonth.addEventListener('click', function() {
+                    dayView.classList.add('d-none');
+                    weekView.classList.add('d-none');
+                    monthView.classList.remove('d-none');
+                    listView.classList.add('d-none');
+                    
+                    viewDay.classList.remove('active');
+                    viewWeek.classList.remove('active');
+                    viewMonth.classList.add('active');
+                    viewList.classList.remove('active');
+                    
+                    loadMonthView();
+                });
+                
+                viewList.addEventListener('click', function() {
+                    dayView.classList.add('d-none');
+                    weekView.classList.add('d-none');
+                    monthView.classList.add('d-none');
+                    listView.classList.remove('d-none');
+                    
+                    viewDay.classList.remove('active');
+                    viewWeek.classList.remove('active');
+                    viewMonth.classList.remove('active');
+                    viewList.classList.add('active');
+                    
+                    // Refresh the data table
+                    appointmentsTable.columns.adjust().draw();
+                });
+                
+                // Date navigation
+                const appointmentDateInput = document.getElementById('appointmentDate');
+                const prevDateBtn = document.getElementById('prevDate');
+                const nextDateBtn = document.getElementById('nextDate');
+                const todayBtn = document.getElementById('todayBtn');
+                
+                appointmentDateInput.addEventListener('change', function() {
+                    loadDayView();
+                });
+                
+                prevDateBtn.addEventListener('click', function() {
+                    const currentDate = new Date(appointmentDateInput.value);
+                    currentDate.setDate(currentDate.getDate() - 1);
+                    appointmentDateInput.valueAsDate = currentDate;
+                    appointmentDateInput.dispatchEvent(new Event('change'));
+                });
+                
+                nextDateBtn.addEventListener('click', function() {
+                    const currentDate = new Date(appointmentDateInput.value);
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    appointmentDateInput.valueAsDate = currentDate;
+                    appointmentDateInput.dispatchEvent(new Event('change'));
+                });
+                
+                todayBtn.addEventListener('click', function() {
+                    appointmentDateInput.valueAsDate = new Date();
+                    appointmentDateInput.dispatchEvent(new Event('change'));
+                });
+                
+                // Date range form for list view
+                const dateRangeForm = document.getElementById('dateRangeForm');
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                
+                // Initialize with current week
+                const today = new Date();
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay());
+                const endOfWeek = new Date(today);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                
+                startDateInput.valueAsDate = startOfWeek;
+                endDateInput.valueAsDate = endOfWeek;
+                
+                dateRangeForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    loadListViewData();
+                });
+                
+                // Check-in modal
+                const appointmentSelect = document.getElementById('appointmentSelect');
+                const appointmentDetails = document.getElementById('appointmentDetails');
+                const confirmCheckIn = document.getElementById('confirmCheckIn');
+                const checkInBtn = document.getElementById('checkInBtn');
+                
+                appointmentSelect.addEventListener('change', function() {
+                    if (appointmentSelect.value) {
+                        // Fetch appointment details and display them
+                        // In a real application, this would fetch from the server
+                        // For now, we'll just use dummy data
+                        document.getElementById('child-name').textContent = "Child Name";
+                        document.getElementById('parent-name').textContent = "Parent Name";
+                        document.getElementById('service-name').textContent = "Service Name";
+                        document.getElementById('appointment-time').textContent = "9:00 AM";
+                        
+                        appointmentDetails.classList.remove('d-none');
+                    } else {
+                        appointmentDetails.classList.add('d-none');
+                    }
+                    
+                    updateCheckInButton();
+                });
+                
+                confirmCheckIn.addEventListener('change', updateCheckInButton);
+                
+                function updateCheckInButton() {
+                    checkInBtn.disabled = !(appointmentSelect.value && confirmCheckIn.checked);
+                }
+                
+                checkInBtn.addEventListener('click', function() {
+                    // In a real application, this would submit the form to the server
+                    // For now, just close the modal and show an alert
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('checkInModal'));
+                    modal.hide();
+                    alert('Patient checked in successfully!');
+                });
+                
+                // Update appointment status modal
+                const updateStatusBtns = document.querySelectorAll('.update-status-btn');
+                const updateStatusForm = document.getElementById('updateStatusForm');
+                
+                updateStatusBtns.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const appointmentId = this.getAttribute('data-appointment-id');
+                        updateStatusForm.action = updateStatusForm.action.replace('/0/', '/' + appointmentId + '/');
+                        
+                        // In a real application, you would fetch appointment details here
+                        const detailsContainer = document.getElementById('appointment-details-container');
+                        detailsContainer.innerHTML = '<div class="alert alert-info">Loading appointment details...</div>';
+                        
+                        // Simulate API call
+                        setTimeout(() => {
+                            detailsContainer.innerHTML = `
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>Appointment Details</h6>
+                                        <p><strong>Child:</strong> John Doe</p>
+                                        <p><strong>Service:</strong> Regular Checkup</p>
+                                        <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }, 500);
+                    });
+                });
+                
+                // Process payment modal
+                const paymentAppointmentSelect = document.getElementById('paymentAppointmentSelect');
+                const paymentDetails = document.getElementById('payment-details');
+                const processPaymentBtn = document.getElementById('processPaymentBtn');
+                const processPaymentForm = document.getElementById('processPaymentForm');
+                const processPaymentBtns = document.querySelectorAll('.process-payment-btn');
+                
+                paymentAppointmentSelect.addEventListener('change', function() {
+                    if (paymentAppointmentSelect.value) {
+                        // Fetch appointment details and display them
+                        // In a real application, this would fetch from the server
+                        document.getElementById('payment-child-name').textContent = "Child Name";
+                        document.getElementById('payment-service-name').textContent = "Service Name";
+                        document.getElementById('payment-amount').textContent = "$100.00";
+                        
+                        paymentDetails.classList.remove('d-none');
+                        processPaymentBtn.disabled = false;
+                        
+                        // Update form action
+                        processPaymentForm.action = processPaymentForm.action.replace('/0/', '/' + paymentAppointmentSelect.value + '/');
+                    } else {
+                        paymentDetails.classList.add('d-none');
+                        processPaymentBtn.disabled = true;
+                    }
+                });
+                
+                processPaymentBtns.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const appointmentId = this.getAttribute('data-appointment-id');
+                        processPaymentForm.action = processPaymentForm.action.replace('/0/', '/' + appointmentId + '/');
+                        
+                        // Hide the appointment select since we already know which appointment to use
+                        document.getElementById('payment-appointment-select-container').style.display = 'none';
+                        
+                        // Show payment details
+                        document.getElementById('payment-child-name').textContent = "Child Name";
+                        document.getElementById('payment-service-name').textContent = "Service Name";
+                        document.getElementById('payment-amount').textContent = "$100.00";
+                        
+                        paymentDetails.classList.remove('d-none');
+                        processPaymentBtn.disabled = false;
+                    });
+                });
+                
+                // Cancel appointment modal
+                const cancelAppointmentBtns = document.querySelectorAll('.cancel-appointment-btn');
+                const cancelAppointmentForm = document.getElementById('cancelAppointmentForm');
+                
+                cancelAppointmentBtns.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const appointmentId = this.getAttribute('data-appointment-id');
+                        cancelAppointmentForm.action = cancelAppointmentForm.action.replace('/0/', '/' + appointmentId + '/');
+                    });
+                });
+                
+                // Load day view
+                function loadDayView() {
+                    const selectedDate = appointmentDateInput.value;
+                    document.getElementById('day-view-title').textContent = `Appointments for ${new Date(selectedDate).toLocaleDateString()}`;
+                    
+                    // In a real application, this would fetch appointments for the selected date
+                    // For now, we'll just clear the slots
+                    for (let hour = 8; hour <= 17; hour++) {
+                        const slotElement = document.getElementById(`slot-${hour}`);
+                        if (slotElement) {
+                            slotElement.innerHTML = '';
+                        }
+                    }
+                    
+                    // Add some sample appointments
+                    addSampleAppointments();
+                }
+                
+                // Load week view
+                function loadWeekView() {
+                    const selectedDate = new Date(appointmentDateInput.value);
+                    const startDate = new Date(selectedDate);
+                    startDate.setDate(selectedDate.getDate() - selectedDate.getDay() + 1); // Start from Monday
+                    
+                    const endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 4); // Go to Friday
+                    
+                    document.getElementById('week-view-title').textContent = `Week of ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                    
+                    // Clear previous content
+                    for (let day = 1; day <= 5; day++) {
+                        const dayElement = document.getElementById(`week-day-${day}`);
+                        const currentDay = new Date(startDate);
+                        currentDay.setDate(startDate.getDate() + day - 1);
+                        
+                        dayElement.innerHTML = `
+                            <div class="calendar-day-header">${currentDay.getDate()}</div>
+                            <div class="calendar-appointments" id="week-appointments-${day}"></div>
+                        `;
+                        
+                        // Add some sample appointments
+                        if (Math.random() > 0.5) {
+                            const appointmentsContainer = document.getElementById(`week-appointments-${day}`);
+                            const count = Math.floor(Math.random() * 3) + 1;
+                            
+                            for (let i = 0; i < count; i++) {
+                                const hour = Math.floor(Math.random() * 9) + 8;
+                                const minute = Math.random() > 0.5 ? '30' : '00';
+                                const status = ['primary', 'info', 'success', 'danger', 'warning'][Math.floor(Math.random() * 5)];
+                                
+                                appointmentsContainer.innerHTML += `
+                                    <div class="p-1 mb-1 rounded bg-${status} text-white small">
+                                        ${hour}:${minute} - Child Name
+                                    </div>
+                                `;
+                            }
+                        }
+                    }
+                }
+                
+                // Load month view
+                function loadMonthView() {
+                    const selectedDate = new Date(appointmentDateInput.value);
+                    const year = selectedDate.getFullYear();
+                    const month = selectedDate.getMonth();
+                    
+                    document.getElementById('month-view-title').textContent = `${selectedDate.toLocaleString('default', { month: 'long' })} ${year}`;
+                    
+                    const firstDayOfMonth = new Date(year, month, 1);
+                    const lastDayOfMonth = new Date(year, month + 1, 0);
+                    
+                    const startingDayOfWeek = firstDayOfMonth.getDay();
+                    const daysInMonth = lastDayOfMonth.getDate();
+                    
+                    const calendarGrid = document.getElementById('calendar-grid');
+                    calendarGrid.innerHTML = '';
+                    
+                    // Create rows for each week
+                    let dayCount = 1;
+                    let weekHTML = '<div class="row mb-2">';
+                    
+                    // Add empty cells for days before the first day of the month
+                    for (let i = 0; i < startingDayOfWeek; i++) {
+                        weekHTML += `
+                            <div class="col calendar-day other-month">
+                                <div class="calendar-day-header"></div>
+                                <div class="calendar-appointments"></div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add cells for each day of the month
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const currentDate = new Date(year, month, day);
+                        const isToday = (currentDate.toDateString() === new Date().toDateString());
+                        
+                        const dayClass = isToday ? 'today' : '';
+                        const dateClass = isToday ? 'today' : '';
+                        
+                        weekHTML += `
+                            <div class="col calendar-day ${dayClass}">
+                                <div class="calendar-day-header">
+                                    <span class="calendar-date ${dateClass}">${day}</span>
+                                </div>
+                                <div class="calendar-appointments" id="month-day-${day}"></div>
+                            </div>
+                        `;
+                        
+                        const dayOfWeek = (startingDayOfWeek + day - 1) % 7;
+                        
+                        // If it's the end of a week, close the row and start a new one
+                        if (dayOfWeek === 6 || day === daysInMonth) {
+                            // If it's the last day of the month, add empty cells to complete the week
+                            if (day === daysInMonth && dayOfWeek < 6) {
+                                for (let i = dayOfWeek; i < 6; i++) {
+                                    weekHTML += `
+                                        <div class="col calendar-day other-month">
+                                            <div class="calendar-day-header"></div>
+                                            <div class="calendar-appointments"></div>
+                                        </div>
+                                    `;
+                                }
+                            }
+                            
+                            weekHTML += '</div>';
+                            calendarGrid.innerHTML += weekHTML;
+                            
+                            // Start a new week if we're not at the end of the month
+                            if (day < daysInMonth) {
+                                weekHTML = '<div class="row mb-2">';
+                            }
+                        }
+                    }
+                    
+                    // Add some sample appointments to random days
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        if (Math.random() > 0.7) {
+                            const appointmentsContainer = document.getElementById(`month-day-${day}`);
+                            if (appointmentsContainer) {
+                                const count = Math.floor(Math.random() * 2) + 1;
+                                
+                                for (let i = 0; i < count; i++) {
+                                    const status = ['primary', 'info', 'success', 'danger', 'warning'][Math.floor(Math.random() * 5)];
+                                    
+                                    appointmentsContainer.innerHTML += `
+                                        <div class="p-1 mb-1 rounded bg-${status} text-white small">
+                                            Child Name
+                                        </div>
+                                    `;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Load list view data
+                function loadListViewData() {
+                    const startDate = startDateInput.value;
+                    const endDate = endDateInput.value;
+                    
+                    // In a real application, this would fetch appointments for the date range
+                    document.getElementById('list-view-title').textContent = `Appointments from ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}`;
+                    
+                    // Clear and reload the table
+                    appointmentsTable.clear().draw();
+                    addSampleAppointmentsToTable();
+                }
+                
+                // Sample data for testing
+                function addSampleAppointments() {
+                    // In a real application, these would be fetched from the server
+                    const appointmentHours = [9, 10, 11, 13, 14, 15, 16];
+                    const childNames = ['John Doe', 'Jane Smith', 'Robert Johnson', 'Emma Brown', 'Michael Wilson'];
+                    const serviceNames = ['Regular Checkup', 'DTaP Vaccine', 'MMR Vaccine', 'Polio Vaccine', 'Annual Wellness Visit'];
+                    const statuses = ['bg-primary text-white', 'bg-info text-white', 'bg-success text-white', 'bg-danger text-white', 'bg-warning text-white'];
+                    const statusNames = ['SCHEDULED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
+                    
+                    // Create 3-5 random appointments
+                    const count = Math.floor(Math.random() * 3) + 3;
+                    const usedHours = [];
+                    
+                    for (let i = 0; i < count; i++) {
+                        // Select a random hour that hasn't been used yet
+                        let hour;
+                        do {
+                            hour = appointmentHours[Math.floor(Math.random() * appointmentHours.length)];
+                        } while (usedHours.includes(hour));
+                        
+                        usedHours.push(hour);
+                        
+                        const minute = Math.random() > 0.5 ? '00' : '30';
+                        const childName = childNames[Math.floor(Math.random() * childNames.length)];
+                        const serviceName = serviceNames[Math.floor(Math.random() * serviceNames.length)];
+                        const statusIndex = Math.floor(Math.random() * statuses.length);
+                        
+                        const statusClass = statuses[statusIndex];
+                        const statusName = statusNames[statusIndex];
+                        
+                        const slotElement = document.getElementById(`slot-${hour}`);
+                        if (slotElement) {
+                            slotElement.innerHTML += `
+                                <div class="p-2 rounded mb-2 ${statusClass}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>${hour}:${minute}</strong> - ${childName}
+                                        </div>
+                                        <a href="#" class="btn btn-sm btn-light">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                    <div class="small">${serviceName}</div>
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    // Update appointment count
+                    document.querySelector('#appointment-stats .h5').textContent = count;
+                }
+                
+                function addSampleAppointmentsToTable() {
+                    // Add 10 sample rows to the table
+                    for (let i = 0; i < 10; i++) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - Math.floor(Math.random() * 14));
+                        date.setHours(8 + Math.floor(Math.random() * 8), Math.random() > 0.5 ? 0 : 30);
+                        
+                        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                        
+                        const childNames = ['John Doe', 'Jane Smith', 'Robert Johnson', 'Emma Brown', 'Michael Wilson'];
+                        const parentNames = ['Mary Doe', 'Tom Smith', 'Lisa Johnson', 'James Brown', 'Sarah Wilson'];
+                        const serviceNames = ['Regular Checkup', 'DTaP Vaccine', 'MMR Vaccine', 'Polio Vaccine', 'Annual Wellness Visit'];
+                        const statuses = ['COMPLETED', 'SCHEDULED', 'CONFIRMED', 'CANCELLED', 'NO_SHOW'];
+                        const statusClasses = ['bg-success', 'bg-primary', 'bg-info', 'bg-danger', 'bg-warning'];
+                        const paymentStatuses = ['COMPLETED', 'PENDING', 'REFUNDED', 'FAILED', null];
+                        const paymentClasses = ['bg-success', 'bg-warning', 'bg-info', 'bg-danger', 'bg-secondary'];
+                        
+                        const childIndex = Math.floor(Math.random() * childNames.length);
+                        const serviceIndex = Math.floor(Math.random() * serviceNames.length);
+                        const statusIndex = Math.floor(Math.random() * statuses.length);
+                        const paymentIndex = Math.floor(Math.random() * paymentStatuses.length);
+                        
+                        appointmentsTable.row.add([
+                            formattedDate,
+                            `${childNames[childIndex]}<br><small class="text-muted">Parent: ${parentNames[childIndex]}</small>`,
+                            serviceNames[serviceIndex],
+                            `<span class="badge ${statusClasses[statusIndex]}">${statuses[statusIndex]}</span>`,
+                            paymentStatuses[paymentIndex] ? `<span class="badge ${paymentClasses[paymentIndex]}">${paymentStatuses[paymentIndex]}</span>` : '<span class="badge bg-secondary">NO PAYMENT</span>',
+                            `<div class="dropdown">
+                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-eye fa-sm"></i> View Details</a></li>
+                                    <li><button class="dropdown-item update-status-btn" data-appointment-id="${i + 1}" data-bs-toggle="modal" data-bs-target="#updateStatusModal"><i class="fas fa-edit fa-sm"></i> Update Status</button></li>
+                                    <li><button class="dropdown-item process-payment-btn" data-appointment-id="${i + 1}" data-bs-toggle="modal" data-bs-target="#processPaymentModal"><i class="fas fa-dollar-sign fa-sm"></i> Process Payment</button></li>
+                                    <li><button class="dropdown-item cancel-appointment-btn" data-appointment-id="${i + 1}" data-bs-toggle="modal" data-bs-target="#cancelAppointmentModal"><i class="fas fa-ban fa-sm"></i> Cancel Appointment</button></li>
+                                </ul>
+                            </div>`
+                        ]).draw(false);
+                    }
+                }
+                
+                // Initialize the day view by default
+                loadDayView();
+            });
+        </script>
+    </div>
+</body>
+</html>

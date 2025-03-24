@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Book Appointment - Vaccination Management System</title>
+    <style>
+        .service-card {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        }
+        .service-card.selected {
+            border: 2px solid #4e73df;
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        .time-slot {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-slot:hover {
+            background-color: #f8f9fc;
+        }
+        .time-slot.selected {
+            background-color: #4e73df;
+            color: white;
+        }
+        .time-slot.unavailable {
+            background-color: #e0e0e0;
+            color: #888;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">Book Vaccination Appointment</h1>
+            
+            <!-- Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                <span th:text="${warning}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            <!-- Booking Steps -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Appointment Booking Process</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mb-4">
+                                <div class="progress" style="height: 25px;">
+                                    <div id="booking-progress" class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">Step 1 of 4</div>
+                                </div>
+                            </div>
+                            
+                            <ul class="nav nav-tabs" id="bookingTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="step1-tab" data-bs-toggle="tab" data-bs-target="#step1" type="button" role="tab" aria-controls="step1" aria-selected="true">
+                                        <i class="fas fa-child me-1"></i> Select Child
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link disabled" id="step2-tab" data-bs-toggle="tab" data-bs-target="#step2" type="button" role="tab" aria-controls="step2" aria-selected="false">
+                                        <i class="fas fa-clipboard-list me-1"></i> Select Service
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link disabled" id="step3-tab" data-bs-toggle="tab" data-bs-target="#step3" type="button" role="tab" aria-controls="step3" aria-selected="false">
+                                        <i class="fas fa-calendar-alt me-1"></i> Choose Date & Time
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link disabled" id="step4-tab" data-bs-toggle="tab" data-bs-target="#step4" type="button" role="tab" aria-controls="step4" aria-selected="false">
+                                        <i class="fas fa-check-circle me-1"></i> Confirm & Book
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <form id="appointmentForm" th:action="@{/customer/appointments/book}" method="post" th:object="${appointmentDTO}">
+                                <div class="tab-content p-4 border border-top-0 rounded-bottom" id="bookingTabContent">
+                                    <!-- Step 1: Select Child -->
+                                    <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="step1-tab">
+                                        <h5 class="mb-4">Select a Child for the Appointment</h5>
+                                        
+                                        <div class="row">
+                                            <div th:each="child : ${children}" class="col-lg-4 col-md-6 mb-4">
+                                                <div class="card child-card service-card h-100">
+                                                    <div class="card-body text-center">
+                                                        <input type="radio" name="childId" th:id="${'child-' + child.id}" th:value="${child.id}" th:field="*{childId}" class="d-none" />
+                                                        <div class="mb-3">
+                                                            <img class="img-profile rounded-circle" style="width: 80px; height: 80px;"
+                                                                 src="https://via.placeholder.com/150" alt="Child Profile">
+                                                        </div>
+                                                        <h5 class="card-title" th:text="${child.fullName}">Child Name</h5>
+                                                        <p class="card-text text-muted">
+                                                            <span th:with="age=${T(java.time.Period).between(child.dateOfBirth, T(java.time.LocalDate).now())}">
+                                                                <span th:text="${age.years}">0</span> years
+                                                                <span th:text="${age.months}">0</span> months
+                                                            </span>
+                                                        </p>
+                                                        <span class="badge" th:classappend="${child.gender == T(com.vaccine.entity.Child.Gender).MALE ? 'bg-info' : 'bg-danger'}" 
+                                                              th:text="${child.gender == T(com.vaccine.entity.Child.Gender).MALE ? 'Male' : 'Female'}">Gender</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div th:if="${children.isEmpty()}" class="text-center py-5">
+                                            <i class="fas fa-child fa-3x text-muted mb-3"></i>
+                                            <h5>No Children Profiles</h5>
+                                            <p class="text-muted">You need to add a child profile before booking an appointment.</p>
+                                            <a th:href="@{/customer/children/add}" class="btn btn-primary">
+                                                Add Child Profile
+                                            </a>
+                                        </div>
+                                        
+                                        <div class="mt-4 text-end">
+                                            <button type="button" id="step1NextBtn" class="btn btn-primary" disabled>
+                                                Next <i class="fas fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Step 2: Select Service -->
+                                    <div class="tab-pane fade" id="step2" role="tabpanel" aria-labelledby="step2-tab">
+                                        <h5 class="mb-4">Select Vaccination Service</h5>
+                                        
+                                        <div class="mb-4">
+                                            <ul class="nav nav-pills mb-3" id="serviceTypeTab" role="tablist">
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link active" id="all-services-tab" data-bs-toggle="pill" data-bs-target="#all-services" type="button" role="tab">All Services</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link" id="individual-vaccines-tab" data-bs-toggle="pill" data-bs-target="#individual-vaccines" type="button" role="tab">Individual Vaccines</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link" id="packages-tab" data-bs-toggle="pill" data-bs-target="#packages" type="button" role="tab">Packages</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link" id="recommended-tab" data-bs-toggle="pill" data-bs-target="#recommended" type="button" role="tab">Recommended</button>
+                                                </li>
+                                            </ul>
+                                            
+                                            <div class="tab-content" id="serviceTypeTabContent">
+                                                <div class="tab-pane fade show active" id="all-services" role="tabpanel">
+                                                    <div class="row">
+                                                        <div th:each="service : ${services}" class="col-md-6 col-lg-4 mb-4">
+                                                            <div class="card service-card h-100">
+                                                                <div class="card-body">
+                                                                    <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
+                                                                    <div class="d-flex justify-content-between mb-3">
+                                                                        <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                                                        <span class="badge" th:classappend="${
+                                                                            service.type == T(com.vaccine.entity.Service.ServiceType).INDIVIDUAL_VACCINE ? 'bg-info' : 
+                                                                            service.type == T(com.vaccine.entity.Service.ServiceType).PACKAGE ? 'bg-success' : 'bg-warning'
+                                                                        }" th:text="${service.type}">Type</span>
+                                                                    </div>
+                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Service description</p>
+                                                                    <div class="mb-3">
+                                                                        <small class="text-muted">Included Vaccines:</small>
+                                                                        <ul class="list-group list-group-flush small">
+                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                                                            <li class="list-group-item px-0 text-muted" th:if="${service.vaccines.isEmpty()}">Custom vaccines based on needs</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="fw-bold" th:text="${'$' + service.price}">$100.00</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="tab-pane fade" id="individual-vaccines" role="tabpanel">
+                                                    <div class="row">
+                                                        <div th:each="service : ${services}" th:if="${service.type == T(com.vaccine.entity.Service.ServiceType).INDIVIDUAL_VACCINE}" 
+                                                             class="col-md-6 col-lg-4 mb-4">
+                                                            <div class="card service-card h-100">
+                                                                <div class="card-body">
+                                                                    <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
+                                                                    <div class="d-flex justify-content-between mb-3">
+                                                                        <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                                                        <span class="badge bg-info" th:text="${service.type}">Type</span>
+                                                                    </div>
+                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Service description</p>
+                                                                    <div class="mb-3">
+                                                                        <small class="text-muted">Included Vaccines:</small>
+                                                                        <ul class="list-group list-group-flush small">
+                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="fw-bold" th:text="${'$' + service.price}">$100.00</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="tab-pane fade" id="packages" role="tabpanel">
+                                                    <div class="row">
+                                                        <div th:each="service : ${services}" th:if="${service.type == T(com.vaccine.entity.Service.ServiceType).PACKAGE}" 
+                                                             class="col-md-6 col-lg-4 mb-4">
+                                                            <div class="card service-card h-100">
+                                                                <div class="card-body">
+                                                                    <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
+                                                                    <div class="d-flex justify-content-between mb-3">
+                                                                        <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                                                        <span class="badge bg-success" th:text="${service.type}">Type</span>
+                                                                    </div>
+                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Service description</p>
+                                                                    <div class="mb-3">
+                                                                        <small class="text-muted">Included Vaccines:</small>
+                                                                        <ul class="list-group list-group-flush small">
+                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="fw-bold" th:text="${'$' + service.price}">$100.00</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="tab-pane fade" id="recommended" role="tabpanel">
+                                                    <div id="recommended-services" class="row">
+                                                        <!-- This will be populated dynamically with recommended services based on the child's age -->
+                                                        <div class="col-12 text-center py-4">
+                                                            <p class="text-muted">Loading recommended services...</p>
+                                                            <div class="spinner-border text-primary" role="status">
+                                                                <span class="visually-hidden">Loading...</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4 d-flex justify-content-between">
+                                            <button type="button" id="step2PrevBtn" class="btn btn-outline-secondary">
+                                                <i class="fas fa-arrow-left"></i> Previous
+                                            </button>
+                                            <button type="button" id="step2NextBtn" class="btn btn-primary" disabled>
+                                                Next <i class="fas fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Step 3: Choose Date & Time -->
+                                    <div class="tab-pane fade" id="step3" role="tabpanel" aria-labelledby="step3-tab">
+                                        <h5 class="mb-4">Choose Appointment Date & Time</h5>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-4">
+                                                    <label for="appointmentDate" class="form-label">Appointment Date</label>
+                                                    <input type="date" class="form-control" id="appointmentDate" name="appointmentDate" 
+                                                           th:field="*{appointmentDate}"
+                                                           th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                                                </div>
+                                                
+                                                <div class="mb-4">
+                                                    <label class="form-label">Available Time Slots</label>
+                                                    <div id="timeSlots" class="row g-3">
+                                                        <!-- Time slots will be dynamically generated here -->
+                                                        <div class="col-md-4">
+                                                            <div class="card text-center p-2 time-slot">
+                                                                <span>09:00 AM</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="card text-center p-2 time-slot">
+                                                                <span>09:30 AM</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="card text-center p-2 time-slot">
+                                                                <span>10:00 AM</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" id="appointmentTime" th:field="*{appointmentDate}" />
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="notes" class="form-label">Additional Notes</label>
+                                                    <textarea class="form-control" id="notes" name="notes" th:field="*{notes}" rows="3" 
+                                                              placeholder="Any special requirements or additional information"></textarea>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="card shadow h-100">
+                                                    <div class="card-header py-3">
+                                                        <h6 class="m-0 font-weight-bold text-primary">Appointment Policy</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h6>Business Hours</h6>
+                                                        <ul class="mb-4">
+                                                            <li>Monday to Friday: 8:00 AM - 5:00 PM</li>
+                                                            <li>Saturday and Sunday: Closed</li>
+                                                        </ul>
+                                                        
+                                                        <h6>Cancellation Policy</h6>
+                                                        <ul class="mb-4">
+                                                            <li>Cancellations must be made at least 24 hours in advance</li>
+                                                            <li>Late cancellations may incur a fee</li>
+                                                            <li>No-shows will be charged the full appointment fee</li>
+                                                        </ul>
+                                                        
+                                                        <h6>What to Bring</h6>
+                                                        <ul>
+                                                            <li>Child's vaccination record book (if available)</li>
+                                                            <li>Identification documents</li>
+                                                            <li>Insurance information (if applicable)</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4 d-flex justify-content-between">
+                                            <button type="button" id="step3PrevBtn" class="btn btn-outline-secondary">
+                                                <i class="fas fa-arrow-left"></i> Previous
+                                            </button>
+                                            <button type="button" id="step3NextBtn" class="btn btn-primary" disabled>
+                                                Next <i class="fas fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Step 4: Confirm & Book -->
+                                    <div class="tab-pane fade" id="step4" role="tabpanel" aria-labelledby="step4-tab">
+                                        <h5 class="mb-4">Confirm Appointment Details</h5>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <div class="card shadow mb-4">
+                                                    <div class="card-header py-3">
+                                                        <h6 class="m-0 font-weight-bold text-primary">Appointment Summary</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row mb-3">
+                                                            <div class="col-sm-4 text-muted">Child:</div>
+                                                            <div class="col-sm-8 fw-bold" id="summary-child">-</div>
+                                                        </div>
+                                                        <div class="row mb-3">
+                                                            <div class="col-sm-4 text-muted">Service:</div>
+                                                            <div class="col-sm-8" id="summary-service">-</div>
+                                                        </div>
+                                                        <div class="row mb-3">
+                                                            <div class="col-sm-4 text-muted">Price:</div>
+                                                            <div class="col-sm-8 fw-bold" id="summary-price">-</div>
+                                                        </div>
+                                                        <div class="row mb-3">
+                                                            <div class="col-sm-4 text-muted">Date & Time:</div>
+                                                            <div class="col-sm-8" id="summary-datetime">-</div>
+                                                        </div>
+                                                        <div class="row mb-3">
+                                                            <div class="col-sm-4 text-muted">Additional Notes:</div>
+                                                            <div class="col-sm-8" id="summary-notes">-</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-4">
+                                                <div class="card border-left-info shadow h-100 py-2 mb-4">
+                                                    <div class="card-body">
+                                                        <div class="row no-gutters align-items-center">
+                                                            <div class="col mr-2">
+                                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                                    Payment Information</div>
+                                                                <div class="h5 mb-0 font-weight-bold text-gray-800">Pay at Clinic</div>
+                                                                <small class="text-muted">Payment will be collected after the appointment</small>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                                    <label class="form-check-label" for="termsCheck">
+                                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="reminderCheck" checked>
+                                                    <label class="form-check-label" for="reminderCheck">
+                                                        Send me appointment reminders
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4 d-flex justify-content-between">
+                                            <button type="button" id="step4PrevBtn" class="btn btn-outline-secondary">
+                                                <i class="fas fa-arrow-left"></i> Previous
+                                            </button>
+                                            <button type="submit" id="submitBtn" class="btn btn-success" disabled>
+                                                <i class="fas fa-check"></i> Confirm & Book Appointment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Terms and Conditions Modal -->
+            <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h6>Appointment Terms</h6>
+                            <p>By booking an appointment, you agree to the following terms:</p>
+                            <ul>
+                                <li>You must arrive 15 minutes before your scheduled appointment time.</li>
+                                <li>Cancellations must be made at least 24 hours in advance.</li>
+                                <li>Late cancellations or no-shows may incur a fee.</li>
+                                <li>Payment is due at the time of service.</li>
+                                <li>You agree to provide accurate and complete information about your child's health history.</li>
+                            </ul>
+                            
+                            <h6>Medical Consent</h6>
+                            <p>By confirming this appointment, you are giving consent for your child to receive the vaccines included in the selected service. You understand that:</p>
+                            <ul>
+                                <li>All vaccines carry some risks of side effects.</li>
+                                <li>You will be provided with Vaccine Information Statements before vaccination.</li>
+                                <li>You will have the opportunity to ask questions before vaccination.</li>
+                                <li>You may withdraw consent at any time before the vaccination is administered.</li>
+                            </ul>
+                            
+                            <h6>Privacy Policy</h6>
+                            <p>We respect your privacy and will protect your personal information in accordance with applicable laws. Your information will be used only for:</p>
+                            <ul>
+                                <li>Providing and managing vaccination services.</li>
+                                <li>Sending appointment reminders and vaccination updates.</li>
+                                <li>Maintaining vaccination records as required by law.</li>
+                                <li>Billing and administrative purposes.</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Variables
+                const form = document.getElementById('appointmentForm');
+                const childCards = document.querySelectorAll('.child-card');
+                const serviceCards = document.querySelectorAll('.service-card');
+                const timeSlots = document.querySelectorAll('.time-slot');
+                const appointmentDateInput = document.getElementById('appointmentDate');
+                const appointmentTimeInput = document.getElementById('appointmentTime');
+                const termsCheck = document.getElementById('termsCheck');
+                
+                // Buttons
+                const step1NextBtn = document.getElementById('step1NextBtn');
+                const step2PrevBtn = document.getElementById('step2PrevBtn');
+                const step2NextBtn = document.getElementById('step2NextBtn');
+                const step3PrevBtn = document.getElementById('step3PrevBtn');
+                const step3NextBtn = document.getElementById('step3NextBtn');
+                const step4PrevBtn = document.getElementById('step4PrevBtn');
+                const submitBtn = document.getElementById('submitBtn');
+                
+                // Tab elements
+                const step1Tab = document.getElementById('step1-tab');
+                const step2Tab = document.getElementById('step2-tab');
+                const step3Tab = document.getElementById('step3-tab');
+                const step4Tab = document.getElementById('step4-tab');
+                
+                // Progress bar
+                const progressBar = document.getElementById('booking-progress');
+                
+                // Summary elements
+                const summaryChild = document.getElementById('summary-child');
+                const summaryService = document.getElementById('summary-service');
+                const summaryPrice = document.getElementById('summary-price');
+                const summaryDateTime = document.getElementById('summary-datetime');
+                const summaryNotes = document.getElementById('summary-notes');
+                
+                // Child selection
+                childCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        // Reset previous selection
+                        childCards.forEach(c => c.classList.remove('selected'));
+                        
+                        // Select this card
+                        card.classList.add('selected');
+                        
+                        // Find the radio input and check it
+                        const radioInput = card.querySelector('input[type="radio"]');
+                        radioInput.checked = true;
+                        
+                        // Enable the next button
+                        step1NextBtn.disabled = false;
+                        
+                        // Update summary
+                        summaryChild.textContent = card.querySelector('.card-title').textContent;
+                        
+                        // Fetch recommended services when child is selected
+                        fetchRecommendedServices(radioInput.value);
+                    });
+                });
+                
+                // Service selection
+                serviceCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        // Reset previous selection
+                        serviceCards.forEach(c => c.classList.remove('selected'));
+                        
+                        // Select this card
+                        card.classList.add('selected');
+                        
+                        // Find the radio input and check it
+                        const radioInput = card.querySelector('input[type="radio"]');
+                        radioInput.checked = true;
+                        
+                        // Enable the next button
+                        step2NextBtn.disabled = false;
+                        
+                        // Update summary
+                        summaryService.textContent = card.querySelector('.card-title').textContent;
+                        summaryPrice.textContent = card.querySelector('.fw-bold').textContent;
+                    });
+                });
+                
+                // Time slot selection
+                timeSlots.forEach(slot => {
+                    slot.addEventListener('click', function() {
+                        if (slot.classList.contains('unavailable')) {
+                            return;
+                        }
+                        
+                        // Reset previous selection
+                        timeSlots.forEach(s => s.classList.remove('selected'));
+                        
+                        // Select this slot
+                        slot.classList.add('selected');
+                        
+                        // Update the hidden time input
+                        const time = slot.querySelector('span').textContent;
+                        const date = appointmentDateInput.value;
+                        
+                        // Convert time to 24-hour format for datetime-local input
+                        const timeComponents = time.match(/(\d+):(\d+) ([AP]M)/);
+                        let hours = parseInt(timeComponents[1]);
+                        const minutes = timeComponents[2];
+                        const ampm = timeComponents[3];
+                        
+                        if (ampm === 'PM' && hours < 12) {
+                            hours += 12;
+                        } else if (ampm === 'AM' && hours === 12) {
+                            hours = 0;
+                        }
+                        
+                        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}`;
+                        
+                        appointmentTimeInput.value = `${date}T${formattedTime}`;
+                        
+                        // Enable the next button
+                        step3NextBtn.disabled = false;
+                        
+                        // Update summary
+                        const dateObj = new Date(`${date}T${formattedTime}`);
+                        summaryDateTime.textContent = dateObj.toLocaleString();
+                    });
+                });
+                
+                // Terms checkbox
+                termsCheck.addEventListener('change', function() {
+                    submitBtn.disabled = !termsCheck.checked;
+                });
+                
+                // Date input change - fetch available time slots
+                appointmentDateInput.addEventListener('change', function() {
+                    fetchTimeSlots(appointmentDateInput.value);
+                    
+                    // Reset time selection
+                    timeSlots.forEach(s => s.classList.remove('selected'));
+                    step3NextBtn.disabled = true;
+                });
+                
+                // Notes input change
+                document.getElementById('notes').addEventListener('input', function() {
+                    summaryNotes.textContent = this.value || '-';
+                });
+                
+                // Navigation buttons
+                step1NextBtn.addEventListener('click', function() {
+                    // Go to step 2
+                    new bootstrap.Tab(step2Tab).show();
+                    step2Tab.classList.remove('disabled');
+                    progressBar.style.width = '50%';
+                    progressBar.textContent = 'Step 2 of 4';
+                    progressBar.setAttribute('aria-valuenow', '50');
+                });
+                
+                step2PrevBtn.addEventListener('click', function() {
+                    // Go back to step 1
+                    new bootstrap.Tab(step1Tab).show();
+                    progressBar.style.width = '25%';
+                    progressBar.textContent = 'Step 1 of 4';
+                    progressBar.setAttribute('aria-valuenow', '25');
+                });
+                
+                step2NextBtn.addEventListener('click', function() {
+                    // Go to step 3
+                    new bootstrap.Tab(step3Tab).show();
+                    step3Tab.classList.remove('disabled');
+                    progressBar.style.width = '75%';
+                    progressBar.textContent = 'Step 3 of 4';
+                    progressBar.setAttribute('aria-valuenow', '75');
+                    
+                    // Set the min date to today
+                    const today = new Date().toISOString().split('T')[0];
+                    appointmentDateInput.min = today;
+                    appointmentDateInput.value = today;
+                    
+                    // Fetch available time slots for today
+                    fetchTimeSlots(today);
+                });
+                
+                step3PrevBtn.addEventListener('click', function() {
+                    // Go back to step 2
+                    new bootstrap.Tab(step2Tab).show();
+                    progressBar.style.width = '50%';
+                    progressBar.textContent = 'Step 2 of 4';
+                    progressBar.setAttribute('aria-valuenow', '50');
+                });
+                
+                step3NextBtn.addEventListener('click', function() {
+                    // Go to step 4
+                    new bootstrap.Tab(step4Tab).show();
+                    step4Tab.classList.remove('disabled');
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = 'Step 4 of 4';
+                    progressBar.setAttribute('aria-valuenow', '100');
+                });
+                
+                step4PrevBtn.addEventListener('click', function() {
+                    // Go back to step 3
+                    new bootstrap.Tab(step3Tab).show();
+                    progressBar.style.width = '75%';
+                    progressBar.textContent = 'Step 3 of 4';
+                    progressBar.setAttribute('aria-valuenow', '75');
+                });
+                
+                // Functions
+                function fetchRecommendedServices(childId) {
+                    const recommendedServicesContainer = document.getElementById('recommended-services');
+                    recommendedServicesContainer.innerHTML = `
+                        <div class="col-12 text-center py-4">
+                            <p class="text-muted">Loading recommended services...</p>
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Fetch recommended services for this child
+                    fetch(`/api/vaccinations/recommended/${childId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length === 0) {
+                                recommendedServicesContainer.innerHTML = `
+                                    <div class="col-12 text-center py-4">
+                                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                        <h5>No Recommendations</h5>
+                                        <p class="text-muted">All vaccinations are up to date for this child.</p>
+                                    </div>
+                                `;
+                                return;
+                            }
+                            
+                            // Get vaccine IDs from the recommended vaccinations
+                            const vaccineIds = data.map(vaccination => vaccination.vaccine.id);
+                            
+                            // Filter services that include these vaccines
+                            fetch('/api/services')
+                                .then(response => response.json())
+                                .then(services => {
+                                    const recommendedServices = services.filter(service => {
+                                        return service.vaccines.some(vaccine => vaccineIds.includes(vaccine.id));
+                                    });
+                                    
+                                    if (recommendedServices.length === 0) {
+                                        recommendedServicesContainer.innerHTML = `
+                                            <div class="col-12 text-center py-4">
+                                                <i class="fas fa-info-circle fa-3x text-info mb-3"></i>
+                                                <h5>No Matching Services</h5>
+                                                <p class="text-muted">No services found for the recommended vaccines. Please select from the Individual Vaccines tab.</p>
+                                            </div>
+                                        `;
+                                        return;
+                                    }
+                                    
+                                    // Generate HTML for each recommended service
+                                    let html = '';
+                                    recommendedServices.forEach(service => {
+                                        html += `
+                                            <div class="col-md-6 col-lg-4 mb-4">
+                                                <div class="card service-card h-100">
+                                                    <div class="card-body">
+                                                        <input type="radio" name="serviceId" id="service-${service.id}" value="${service.id}" class="d-none" />
+                                                        <div class="d-flex justify-content-between mb-3">
+                                                            <h5 class="card-title">${service.name}</h5>
+                                                            <span class="badge ${service.type === 'INDIVIDUAL_VACCINE' ? 'bg-info' : service.type === 'PACKAGE' ? 'bg-success' : 'bg-warning'}">${service.type}</span>
+                                                        </div>
+                                                        <p class="card-text">${service.description.length > 120 ? service.description.substring(0, 120) + '...' : service.description}</p>
+                                                        <div class="mb-3">
+                                                            <small class="text-muted">Included Vaccines:</small>
+                                                            <ul class="list-group list-group-flush small">
+                                                                ${service.vaccines.map(vaccine => `<li class="list-group-item px-0 ${vaccineIds.includes(vaccine.id) ? 'fw-bold text-success' : ''}">${vaccine.name} ${vaccineIds.includes(vaccine.id) ? '<i class="fas fa-check-circle text-success ms-1"></i>' : ''}</li>`).join('')}
+                                                                ${service.vaccines.length === 0 ? '<li class="list-group-item px-0 text-muted">Custom vaccines based on needs</li>' : ''}
+                                                            </ul>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="fw-bold">$${service.price}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    });
+                                    
+                                    recommendedServicesContainer.innerHTML = html;
+                                    
+                                    // Add click event listeners to the newly created service cards
+                                    document.querySelectorAll('#recommended .service-card').forEach(card => {
+                                        card.addEventListener('click', function() {
+                                            // Reset previous selection
+                                            serviceCards.forEach(c => c.classList.remove('selected'));
+                                            document.querySelectorAll('#recommended .service-card').forEach(c => c.classList.remove('selected'));
+                                            
+                                            // Select this card
+                                            card.classList.add('selected');
+                                            
+                                            // Find the radio input and check it
+                                            const radioInput = card.querySelector('input[type="radio"]');
+                                            radioInput.checked = true;
+                                            
+                                            // Enable the next button
+                                            step2NextBtn.disabled = false;
+                                            
+                                            // Update summary
+                                            summaryService.textContent = card.querySelector('.card-title').textContent;
+                                            summaryPrice.textContent = card.querySelector('.fw-bold').textContent;
+                                        });
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching services:', error);
+                                    recommendedServicesContainer.innerHTML = `
+                                        <div class="col-12 text-center py-4">
+                                            <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                                            <h5>Error</h5>
+                                            <p class="text-muted">Failed to load recommended services. Please try again.</p>
+                                        </div>
+                                    `;
+                                });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching recommended vaccinations:', error);
+                            recommendedServicesContainer.innerHTML = `
+                                <div class="col-12 text-center py-4">
+                                    <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                                    <h5>Error</h5>
+                                    <p class="text-muted">Failed to load recommendations. Please try again.</p>
+                                </div>
+                            `;
+                        });
+                }
+                
+                function fetchTimeSlots(date) {
+                    const timeSlotsContainer = document.getElementById('timeSlots');
+                    timeSlotsContainer.innerHTML = `
+                        <div class="col-12 text-center py-4">
+                            <p class="text-muted">Loading available time slots...</p>
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Check if the selected date is a weekend
+                    const selectedDate = new Date(date);
+                    const day = selectedDate.getDay();
+                    if (day === 0 || day === 6) { // 0 = Sunday, 6 = Saturday
+                        timeSlotsContainer.innerHTML = `
+                            <div class="col-12 text-center py-4">
+                                <i class="fas fa-calendar-times fa-3x text-danger mb-3"></i>
+                                <h5>Weekend Closure</h5>
+                                <p class="text-muted">Our clinic is closed on weekends. Please select a weekday.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Normally we would fetch available slots from the server
+                    // For this example, we'll generate time slots between 8 AM and 5 PM
+                    const timeSlots = [];
+                    for (let hour = 8; hour < 17; hour++) {
+                        for (let minute = 0; minute < 60; minute += 30) {
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const displayHour = hour % 12 || 12;
+                            const displayMinute = minute === 0 ? '00' : minute;
+                            timeSlots.push(`${displayHour}:${displayMinute} ${ampm}`);
+                        }
+                    }
+                    
+                    // Generate HTML for time slots
+                    let html = '';
+                    timeSlots.forEach((slot, index) => {
+                        // Randomly mark some slots as unavailable for demo purposes
+                        const isUnavailable = Math.random() < 0.3;
+                        html += `
+                            <div class="col-md-4 col-6 mb-3">
+                                <div class="card text-center p-2 time-slot ${isUnavailable ? 'unavailable' : ''}">
+                                    <span>${slot}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    timeSlotsContainer.innerHTML = html;
+                    
+                    // Add click event listeners to the newly created time slots
+                    document.querySelectorAll('.time-slot:not(.unavailable)').forEach(slot => {
+                        slot.addEventListener('click', function() {
+                            // Reset previous selection
+                            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                            
+                            // Select this slot
+                            slot.classList.add('selected');
+                            
+                            // Update the hidden time input
+                            const time = slot.querySelector('span').textContent;
+                            const date = appointmentDateInput.value;
+                            
+                            // Convert time to 24-hour format for datetime-local input
+                            const timeComponents = time.match(/(\d+):(\d+) ([AP]M)/);
+                            let hours = parseInt(timeComponents[1]);
+                            const minutes = timeComponents[2];
+                            const ampm = timeComponents[3];
+                            
+                            if (ampm === 'PM' && hours < 12) {
+                                hours += 12;
+                            } else if (ampm === 'AM' && hours === 12) {
+                                hours = 0;
+                            }
+                            
+                            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}`;
+                            
+                            appointmentTimeInput.value = `${date}T${formattedTime}`;
+                            
+                            // Enable the next button
+                            step3NextBtn.disabled = false;
+                            
+                            // Update summary
+                            const dateObj = new Date(`${date}T${formattedTime}`);
+                            summaryDateTime.textContent = dateObj.toLocaleString();
+                        });
+                    });
+                }
+                
+                // Initialize form with pre-selected values if any
+                const preSelectedChild = document.querySelector('input[name="childId"]:checked');
+                if (preSelectedChild) {
+                    const childCard = preSelectedChild.closest('.child-card');
+                    childCard.classList.add('selected');
+                    step1NextBtn.disabled = false;
+                    summaryChild.textContent = childCard.querySelector('.card-title').textContent;
+                    fetchRecommendedServices(preSelectedChild.value);
+                }
+                
+                const preSelectedService = document.querySelector('input[name="serviceId"]:checked');
+                if (preSelectedService) {
+                    const serviceCard = preSelectedService.closest('.service-card');
+                    serviceCard.classList.add('selected');
+                    step2NextBtn.disabled = false;
+                    summaryService.textContent = serviceCard.querySelector('.card-title').textContent;
+                    summaryPrice.textContent = serviceCard.querySelector('.fw-bold').textContent;
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

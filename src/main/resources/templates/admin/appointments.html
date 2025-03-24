@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Appointments Management - Admin</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">Appointments Management</h1>
+            
+            <!-- Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            <!-- Appointment Filters -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Appointment Filters</h6>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/appointments}" method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="datetime-local" class="form-control" id="startDate" name="startDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="datetime-local" class="form-control" id="endDate" name="endDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                <option th:each="statusOption : ${T(com.vaccine.entity.Appointment.Status).values()}"
+                                        th:value="${statusOption}" th:text="${statusOption}"
+                                        th:selected="${statusOption == currentStatus}">Status</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Appointments List Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Appointments List</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="appointmentsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Child</th>
+                                    <th>Parent</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appointment : ${appointments}">
+                                    <td th:text="${appointment.id}">1</td>
+                                    <td th:text="${#temporals.format(appointment.appointmentDate, 'yyyy-MM-dd HH:mm')}">2023-01-01 09:00</td>
+                                    <td th:text="${appointment.child.fullName}">Child Name</td>
+                                    <td th:text="${appointment.child.parent.fullName}">Parent Name</td>
+                                    <td th:text="${appointment.service.name}">Service Name</td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${
+                                                appointment.status == T(com.vaccine.entity.Appointment.Status).COMPLETED ? 'bg-success' : 
+                                                appointment.status == T(com.vaccine.entity.Appointment.Status).SCHEDULED ? 'bg-primary' : 
+                                                appointment.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED ? 'bg-info' : 
+                                                appointment.status == T(com.vaccine.entity.Appointment.Status).CANCELLED ? 'bg-danger' : 'bg-warning'
+                                              }"
+                                              th:text="${appointment.status}">Status</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${appointment.payment != null}" class="badge"
+                                              th:classappend="${
+                                                appointment.payment.status == T(com.vaccine.entity.Payment.PaymentStatus).COMPLETED ? 'bg-success' : 
+                                                appointment.payment.status == T(com.vaccine.entity.Payment.PaymentStatus).PENDING ? 'bg-warning' : 
+                                                appointment.payment.status == T(com.vaccine.entity.Payment.PaymentStatus).REFUNDED ? 'bg-info' : 'bg-danger'
+                                              }"
+                                              th:text="${appointment.payment.status}">Payment Status</span>
+                                        <span th:if="${appointment.payment == null}" class="badge bg-secondary">NO PAYMENT</span>
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" th:href="@{'/staff/appointments/' + ${appointment.id}}">
+                                                        <i class="fas fa-eye fa-sm"></i> View Details
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item update-status-btn" 
+                                                            data-appointment-id="${appointment.id}" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#updateStatusModal">
+                                                        <i class="fas fa-edit fa-sm"></i> Update Status
+                                                    </button>
+                                                </li>
+                                                <li th:if="${appointment.payment == null || appointment.payment.status != T(com.vaccine.entity.Payment.PaymentStatus).COMPLETED}">
+                                                    <button class="dropdown-item process-payment-btn" 
+                                                            data-appointment-id="${appointment.id}" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#processPaymentModal">
+                                                        <i class="fas fa-dollar-sign fa-sm"></i> Process Payment
+                                                    </button>
+                                                </li>
+                                                <li th:if="${appointment.status != T(com.vaccine.entity.Appointment.Status).CANCELLED}">
+                                                    <button class="dropdown-item cancel-appointment-btn" 
+                                                            data-appointment-id="${appointment.id}" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#cancelAppointmentModal">
+                                                        <i class="fas fa-ban fa-sm"></i> Cancel Appointment
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Status Modal -->
+            <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateStatusModalLabel">Update Appointment Status</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="updateStatusForm" th:action="@{/staff/appointments/0/status}" method="post">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="appointmentStatus" class="form-label">New Status</label>
+                                    <select class="form-select" id="appointmentStatus" name="status" required>
+                                        <option value="">-- Select Status --</option>
+                                        <option th:each="statusOption : ${T(com.vaccine.entity.Appointment.Status).values()}"
+                                                th:value="${statusOption}" th:text="${statusOption}">Status</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Update Status</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Payment Modal -->
+            <div class="modal fade" id="processPaymentModal" tabindex="-1" aria-labelledby="processPaymentModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="processPaymentModalLabel">Process Payment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="processPaymentForm" th:action="@{/staff/appointments/0/complete-payment}" method="post">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="paymentMethod" class="form-label">Payment Method</label>
+                                    <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                                        <option value="">-- Select Payment Method --</option>
+                                        <option th:each="methodOption : ${T(com.vaccine.entity.Payment.PaymentMethod).values()}"
+                                                th:value="${methodOption}" th:text="${methodOption}">Method</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="transactionId" class="form-label">Transaction ID (optional)</label>
+                                    <input type="text" class="form-control" id="transactionId" name="transactionId">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Process Payment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cancel Appointment Modal -->
+            <div class="modal fade" id="cancelAppointmentModal" tabindex="-1" aria-labelledby="cancelAppointmentModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cancelAppointmentModalLabel">Cancel Appointment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="cancelAppointmentForm" th:action="@{/staff/appointments/0/cancel}" method="post">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason for Cancellation</label>
+                                    <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Cancel Appointment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize DataTable
+                $('#appointmentsTable').DataTable();
+                
+                // Update action form URLs when modal is opened
+                document.querySelectorAll('.update-status-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const appointmentId = this.getAttribute('data-appointment-id');
+                        const form = document.getElementById('updateStatusForm');
+                        form.action = form.action.replace('/0/', '/' + appointmentId + '/');
+                    });
+                });
+                
+                document.querySelectorAll('.process-payment-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const appointmentId = this.getAttribute('data-appointment-id');
+                        const form = document.getElementById('processPaymentForm');
+                        form.action = form.action.replace('/0/', '/' + appointmentId + '/');
+                    });
+                });
+                
+                document.querySelectorAll('.cancel-appointment-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const appointmentId = this.getAttribute('data-appointment-id');
+                        const form = document.getElementById('cancelAppointmentForm');
+                        form.action = form.action.replace('/0/', '/' + appointmentId + '/');
+                    });
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

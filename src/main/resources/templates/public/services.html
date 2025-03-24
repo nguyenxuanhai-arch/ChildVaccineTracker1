@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Services - Vaccination Management System</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">Our Vaccination Services</h1>
+            
+            <!-- Service Types Navigation -->
+            <ul class="nav nav-tabs mb-4" id="servicesTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All Services</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="individual-tab" data-bs-toggle="tab" data-bs-target="#individual" type="button" role="tab" aria-controls="individual" aria-selected="false">Individual Vaccines</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="package-tab" data-bs-toggle="tab" data-bs-target="#package" type="button" role="tab" aria-controls="package" aria-selected="false">Vaccine Packages</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="customized-tab" data-bs-toggle="tab" data-bs-target="#customized" type="button" role="tab" aria-controls="customized" aria-selected="false">Customized Services</button>
+                </li>
+            </ul>
+            
+            <!-- Service Content -->
+            <div class="tab-content" id="servicesTabContent">
+                <!-- All Services Tab -->
+                <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                    <div class="row">
+                        <div th:each="service : ${services}" th:if="${service.active}" class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="card-title mb-0" th:text="${service.name}">Service Name</h5>
+                                        <span class="badge" th:classappend="${
+                                            service.type == T(com.vaccine.entity.Service.ServiceType).INDIVIDUAL_VACCINE ? 'bg-info' : 
+                                            service.type == T(com.vaccine.entity.Service.ServiceType).PACKAGE ? 'bg-success' : 'bg-warning'
+                                        }" th:text="${service.type}">Type</span>
+                                    </div>
+                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 200)}">Service description</p>
+                                    <div class="mt-3">
+                                        <h6>Included Vaccines:</h6>
+                                        <ul class="list-group list-group-flush small">
+                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                            <li class="list-group-item px-0 text-muted" th:if="${service.vaccines.isEmpty()}">Custom vaccines based on needs</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <span class="font-weight-bold" th:text="${'$' + service.price}">$0.00</span>
+                                    <a th:href="@{'/services/' + ${service.id}}" class="btn btn-primary btn-sm">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Individual Vaccines Tab -->
+                <div class="tab-pane fade" id="individual" role="tabpanel" aria-labelledby="individual-tab">
+                    <div class="row">
+                        <div th:each="service : ${services}" th:if="${service.active && service.type.name() == 'INDIVIDUAL_VACCINE'}" class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 200)}">Service description</p>
+                                    <div class="mt-3">
+                                        <h6>Included Vaccines:</h6>
+                                        <ul class="list-group list-group-flush small">
+                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <span class="font-weight-bold" th:text="${'$' + service.price}">$0.00</span>
+                                    <a th:href="@{'/services/' + ${service.id}}" class="btn btn-primary btn-sm">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Packages Tab -->
+                <div class="tab-pane fade" id="package" role="tabpanel" aria-labelledby="package-tab">
+                    <div class="row">
+                        <div th:each="service : ${services}" th:if="${service.active && service.type.name() == 'PACKAGE'}" class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 200)}">Service description</p>
+                                    <div class="mt-3">
+                                        <h6>Included Vaccines:</h6>
+                                        <ul class="list-group list-group-flush small">
+                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <span class="font-weight-bold" th:text="${'$' + service.price}">$0.00</span>
+                                    <a th:href="@{'/services/' + ${service.id}}" class="btn btn-primary btn-sm">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customized Tab -->
+                <div class="tab-pane fade" id="customized" role="tabpanel" aria-labelledby="customized-tab">
+                    <div class="row">
+                        <div th:each="service : ${services}" th:if="${service.active && service.type.name() == 'CUSTOMIZED'}" class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 200)}">Service description</p>
+                                    <div class="mt-3">
+                                        <h6>Service Details:</h6>
+                                        <p class="small text-muted">This is a customized service. The specific vaccines will be determined based on your child's needs after consultation.</p>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <span class="font-weight-bold" th:text="${'$' + service.price}">$0.00</span>
+                                    <a th:href="@{'/services/' + ${service.id}}" class="btn btn-primary btn-sm">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Booking Info Section -->
+            <div class="card shadow mt-5">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">How to Book a Vaccination Service</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center mb-4">
+                                <div class="circle-step">1</div>
+                                <h5 class="mt-3">Create an Account</h5>
+                                <p>Register on our platform to get access to all vaccination services.</p>
+                                <a href="/register" class="btn btn-primary btn-sm">Register Now</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-4">
+                                <div class="circle-step">2</div>
+                                <h5 class="mt-3">Add Your Child's Profile</h5>
+                                <p>Enter your child's details and medical history for personalized care.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-4">
+                                <div class="circle-step">3</div>
+                                <h5 class="mt-3">Book an Appointment</h5>
+                                <p>Choose a service, select a convenient date, and book your appointment.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
