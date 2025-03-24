@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{fragments/layout}">
 <head>
-    <title>Book Appointment - Vaccination Management System</title>
+    <title>Đặt lịch hẹn - Hệ thống Quản lý Tiêm chủng</title>
     <style>
         .service-card {
             cursor: pointer;
@@ -38,7 +38,7 @@
 <body>
     <div layout:fragment="content">
         <div class="container-fluid py-4">
-            <h1 class="h3 mb-4 text-gray-800">Book Vaccination Appointment</h1>
+            <h1 class="h3 mb-4 text-gray-800">Đặt lịch hẹn tiêm chủng</h1>
             
             <!-- Messages -->
             <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -57,36 +57,36 @@
             <!-- Booking Steps -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Appointment Booking Process</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Quy trình đặt lịch hẹn</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-xl-12">
                             <div class="mb-4">
                                 <div class="progress" style="height: 25px;">
-                                    <div id="booking-progress" class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">Step 1 of 4</div>
+                                    <div id="booking-progress" class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">Bước 1/4</div>
                                 </div>
                             </div>
                             
                             <ul class="nav nav-tabs" id="bookingTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="step1-tab" data-bs-toggle="tab" data-bs-target="#step1" type="button" role="tab" aria-controls="step1" aria-selected="true">
-                                        <i class="fas fa-child me-1"></i> Select Child
+                                        <i class="fas fa-child me-1"></i> Chọn trẻ
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link disabled" id="step2-tab" data-bs-toggle="tab" data-bs-target="#step2" type="button" role="tab" aria-controls="step2" aria-selected="false">
-                                        <i class="fas fa-clipboard-list me-1"></i> Select Service
+                                        <i class="fas fa-clipboard-list me-1"></i> Chọn dịch vụ
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link disabled" id="step3-tab" data-bs-toggle="tab" data-bs-target="#step3" type="button" role="tab" aria-controls="step3" aria-selected="false">
-                                        <i class="fas fa-calendar-alt me-1"></i> Choose Date & Time
+                                        <i class="fas fa-calendar-alt me-1"></i> Chọn ngày & giờ
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link disabled" id="step4-tab" data-bs-toggle="tab" data-bs-target="#step4" type="button" role="tab" aria-controls="step4" aria-selected="false">
-                                        <i class="fas fa-check-circle me-1"></i> Confirm & Book
+                                        <i class="fas fa-check-circle me-1"></i> Xác nhận & Đặt lịch
                                     </button>
                                 </li>
                             </ul>
@@ -95,7 +95,7 @@
                                 <div class="tab-content p-4 border border-top-0 rounded-bottom" id="bookingTabContent">
                                     <!-- Step 1: Select Child -->
                                     <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="step1-tab">
-                                        <h5 class="mb-4">Select a Child for the Appointment</h5>
+                                        <h5 class="mb-4">Chọn trẻ cho lịch hẹn</h5>
                                         
                                         <div class="row">
                                             <div th:each="child : ${children}" class="col-lg-4 col-md-6 mb-4">
@@ -104,17 +104,17 @@
                                                         <input type="radio" name="childId" th:id="${'child-' + child.id}" th:value="${child.id}" th:field="*{childId}" class="d-none" />
                                                         <div class="mb-3">
                                                             <img class="img-profile rounded-circle" style="width: 80px; height: 80px;"
-                                                                 src="https://via.placeholder.com/150" alt="Child Profile">
+                                                                 src="https://via.placeholder.com/150" alt="Ảnh trẻ">
                                                         </div>
-                                                        <h5 class="card-title" th:text="${child.fullName}">Child Name</h5>
+                                                        <h5 class="card-title" th:text="${child.fullName}">Tên trẻ</h5>
                                                         <p class="card-text text-muted">
                                                             <span th:with="age=${T(java.time.Period).between(child.dateOfBirth, T(java.time.LocalDate).now())}">
-                                                                <span th:text="${age.years}">0</span> years
-                                                                <span th:text="${age.months}">0</span> months
+                                                                <span th:text="${age.years}">0</span> tuổi
+                                                                <span th:text="${age.months}">0</span> tháng
                                                             </span>
                                                         </p>
                                                         <span class="badge" th:classappend="${child.gender == T(com.vaccine.entity.Child.Gender).MALE ? 'bg-info' : 'bg-danger'}" 
-                                                              th:text="${child.gender == T(com.vaccine.entity.Child.Gender).MALE ? 'Male' : 'Female'}">Gender</span>
+                                                              th:text="${child.gender == T(com.vaccine.entity.Child.Gender).MALE ? 'Nam' : 'Nữ'}">Giới tính</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -122,37 +122,37 @@
                                         
                                         <div th:if="${children.isEmpty()}" class="text-center py-5">
                                             <i class="fas fa-child fa-3x text-muted mb-3"></i>
-                                            <h5>No Children Profiles</h5>
-                                            <p class="text-muted">You need to add a child profile before booking an appointment.</p>
+                                            <h5>Chưa có hồ sơ trẻ</h5>
+                                            <p class="text-muted">Bạn cần thêm hồ sơ trẻ trước khi đặt lịch hẹn.</p>
                                             <a th:href="@{/customer/children/add}" class="btn btn-primary">
-                                                Add Child Profile
+                                                Thêm hồ sơ trẻ
                                             </a>
                                         </div>
                                         
                                         <div class="mt-4 text-end">
                                             <button type="button" id="step1NextBtn" class="btn btn-primary" disabled>
-                                                Next <i class="fas fa-arrow-right"></i>
+                                                Tiếp theo <i class="fas fa-arrow-right"></i>
                                             </button>
                                         </div>
                                     </div>
                                     
                                     <!-- Step 2: Select Service -->
                                     <div class="tab-pane fade" id="step2" role="tabpanel" aria-labelledby="step2-tab">
-                                        <h5 class="mb-4">Select Vaccination Service</h5>
+                                        <h5 class="mb-4">Chọn dịch vụ tiêm chủng</h5>
                                         
                                         <div class="mb-4">
                                             <ul class="nav nav-pills mb-3" id="serviceTypeTab" role="tablist">
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link active" id="all-services-tab" data-bs-toggle="pill" data-bs-target="#all-services" type="button" role="tab">All Services</button>
+                                                    <button class="nav-link active" id="all-services-tab" data-bs-toggle="pill" data-bs-target="#all-services" type="button" role="tab">Tất cả dịch vụ</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link" id="individual-vaccines-tab" data-bs-toggle="pill" data-bs-target="#individual-vaccines" type="button" role="tab">Individual Vaccines</button>
+                                                    <button class="nav-link" id="individual-vaccines-tab" data-bs-toggle="pill" data-bs-target="#individual-vaccines" type="button" role="tab">Vắc-xin đơn lẻ</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link" id="packages-tab" data-bs-toggle="pill" data-bs-target="#packages" type="button" role="tab">Packages</button>
+                                                    <button class="nav-link" id="packages-tab" data-bs-toggle="pill" data-bs-target="#packages" type="button" role="tab">Gói dịch vụ</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link" id="recommended-tab" data-bs-toggle="pill" data-bs-target="#recommended" type="button" role="tab">Recommended</button>
+                                                    <button class="nav-link" id="recommended-tab" data-bs-toggle="pill" data-bs-target="#recommended" type="button" role="tab">Đề xuất</button>
                                                 </li>
                                             </ul>
                                             
@@ -164,22 +164,22 @@
                                                                 <div class="card-body">
                                                                     <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
                                                                     <div class="d-flex justify-content-between mb-3">
-                                                                        <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                                                        <h5 class="card-title" th:text="${service.name}">Tên dịch vụ</h5>
                                                                         <span class="badge" th:classappend="${
                                                                             service.type == T(com.vaccine.entity.Service.ServiceType).INDIVIDUAL_VACCINE ? 'bg-info' : 
                                                                             service.type == T(com.vaccine.entity.Service.ServiceType).PACKAGE ? 'bg-success' : 'bg-warning'
                                                                         }" th:text="${service.type}">Type</span>
                                                                     </div>
-                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Service description</p>
+                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Mô tả dịch vụ</p>
                                                                     <div class="mb-3">
-                                                                        <small class="text-muted">Included Vaccines:</small>
+                                                                        <small class="text-muted">Vắc-xin bao gồm:</small>
                                                                         <ul class="list-group list-group-flush small">
-                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
-                                                                            <li class="list-group-item px-0 text-muted" th:if="${service.vaccines.isEmpty()}">Custom vaccines based on needs</li>
+                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Tên vắc-xin</li>
+                                                                            <li class="list-group-item px-0 text-muted" th:if="${service.vaccines.isEmpty()}">Vắc-xin tùy chỉnh theo nhu cầu</li>
                                                                         </ul>
                                                                     </div>
                                                                     <div class="d-flex justify-content-between">
-                                                                        <span class="fw-bold" th:text="${'$' + service.price}">$100.00</span>
+                                                                        <span class="fw-bold" th:text="${'₫' + service.price}">₫100.000</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -195,14 +195,14 @@
                                                                 <div class="card-body">
                                                                     <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
                                                                     <div class="d-flex justify-content-between mb-3">
-                                                                        <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                                                        <h5 class="card-title" th:text="${service.name}">Tên dịch vụ</h5>
                                                                         <span class="badge bg-info" th:text="${service.type}">Type</span>
                                                                     </div>
-                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Service description</p>
+                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Mô tả dịch vụ</p>
                                                                     <div class="mb-3">
-                                                                        <small class="text-muted">Included Vaccines:</small>
+                                                                        <small class="text-muted">Vắc-xin bao gồm:</small>
                                                                         <ul class="list-group list-group-flush small">
-                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Tên vắc-xin</li>
                                                                         </ul>
                                                                     </div>
                                                                     <div class="d-flex justify-content-between">
@@ -222,14 +222,14 @@
                                                                 <div class="card-body">
                                                                     <input type="radio" name="serviceId" th:id="${'service-' + service.id}" th:value="${service.id}" th:field="*{serviceId}" class="d-none" />
                                                                     <div class="d-flex justify-content-between mb-3">
-                                                                        <h5 class="card-title" th:text="${service.name}">Service Name</h5>
+                                                                        <h5 class="card-title" th:text="${service.name}">Tên dịch vụ</h5>
                                                                         <span class="badge bg-success" th:text="${service.type}">Type</span>
                                                                     </div>
-                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Service description</p>
+                                                                    <p class="card-text" th:text="${#strings.abbreviate(service.description, 120)}">Mô tả dịch vụ</p>
                                                                     <div class="mb-3">
-                                                                        <small class="text-muted">Included Vaccines:</small>
+                                                                        <small class="text-muted">Vắc-xin bao gồm:</small>
                                                                         <ul class="list-group list-group-flush small">
-                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Vaccine name</li>
+                                                                            <li class="list-group-item px-0" th:each="vaccine : ${service.vaccines}" th:text="${vaccine.name}">Tên vắc-xin</li>
                                                                         </ul>
                                                                     </div>
                                                                     <div class="d-flex justify-content-between">
@@ -245,9 +245,9 @@
                                                     <div id="recommended-services" class="row">
                                                         <!-- This will be populated dynamically with recommended services based on the child's age -->
                                                         <div class="col-12 text-center py-4">
-                                                            <p class="text-muted">Loading recommended services...</p>
+                                                            <p class="text-muted">Đang tải dịch vụ được đề xuất...</p>
                                                             <div class="spinner-border text-primary" role="status">
-                                                                <span class="visually-hidden">Loading...</span>
+                                                                <span class="visually-hidden">Đang tải...</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -257,44 +257,44 @@
                                         
                                         <div class="mt-4 d-flex justify-content-between">
                                             <button type="button" id="step2PrevBtn" class="btn btn-outline-secondary">
-                                                <i class="fas fa-arrow-left"></i> Previous
+                                                <i class="fas fa-arrow-left"></i> Quay lại
                                             </button>
                                             <button type="button" id="step2NextBtn" class="btn btn-primary" disabled>
-                                                Next <i class="fas fa-arrow-right"></i>
+                                                Tiếp theo <i class="fas fa-arrow-right"></i>
                                             </button>
                                         </div>
                                     </div>
                                     
                                     <!-- Step 3: Choose Date & Time -->
                                     <div class="tab-pane fade" id="step3" role="tabpanel" aria-labelledby="step3-tab">
-                                        <h5 class="mb-4">Choose Appointment Date & Time</h5>
+                                        <h5 class="mb-4">Chọn ngày & giờ hẹn</h5>
                                         
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-4">
-                                                    <label for="appointmentDate" class="form-label">Appointment Date</label>
+                                                    <label for="appointmentDate" class="form-label">Ngày hẹn</label>
                                                     <input type="date" class="form-control" id="appointmentDate" name="appointmentDate" 
                                                            th:field="*{appointmentDate}"
                                                            th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
                                                 </div>
                                                 
                                                 <div class="mb-4">
-                                                    <label class="form-label">Available Time Slots</label>
+                                                    <label class="form-label">Khung giờ có sẵn</label>
                                                     <div id="timeSlots" class="row g-3">
                                                         <!-- Time slots will be dynamically generated here -->
                                                         <div class="col-md-4">
                                                             <div class="card text-center p-2 time-slot">
-                                                                <span>09:00 AM</span>
+                                                                <span>09:00</span>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="card text-center p-2 time-slot">
-                                                                <span>09:30 AM</span>
+                                                                <span>09:30</span>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="card text-center p-2 time-slot">
-                                                                <span>10:00 AM</span>
+                                                                <span>10:00</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -302,36 +302,36 @@
                                                 </div>
                                                 
                                                 <div class="form-group">
-                                                    <label for="notes" class="form-label">Additional Notes</label>
+                                                    <label for="notes" class="form-label">Ghi chú bổ sung</label>
                                                     <textarea class="form-control" id="notes" name="notes" th:field="*{notes}" rows="3" 
-                                                              placeholder="Any special requirements or additional information"></textarea>
+                                                              placeholder="Các yêu cầu đặc biệt hoặc thông tin bổ sung"></textarea>
                                                 </div>
                                             </div>
                                             
                                             <div class="col-md-6">
                                                 <div class="card shadow h-100">
                                                     <div class="card-header py-3">
-                                                        <h6 class="m-0 font-weight-bold text-primary">Appointment Policy</h6>
+                                                        <h6 class="m-0 font-weight-bold text-primary">Quy định đặt lịch</h6>
                                                     </div>
                                                     <div class="card-body">
-                                                        <h6>Business Hours</h6>
+                                                        <h6>Giờ làm việc</h6>
                                                         <ul class="mb-4">
-                                                            <li>Monday to Friday: 8:00 AM - 5:00 PM</li>
-                                                            <li>Saturday and Sunday: Closed</li>
+                                                            <li>Thứ Hai đến Thứ Sáu: 8:00 - 17:00</li>
+                                                            <li>Thứ Bảy và Chủ Nhật: Đóng cửa</li>
                                                         </ul>
                                                         
-                                                        <h6>Cancellation Policy</h6>
+                                                        <h6>Chính sách hủy lịch</h6>
                                                         <ul class="mb-4">
-                                                            <li>Cancellations must be made at least 24 hours in advance</li>
-                                                            <li>Late cancellations may incur a fee</li>
-                                                            <li>No-shows will be charged the full appointment fee</li>
+                                                            <li>Cần hủy lịch ít nhất 24 giờ trước giờ hẹn</li>
+                                                            <li>Hủy muộn có thể phải trả phí</li>
+                                                            <li>Không đến mà không báo trước sẽ phải trả toàn bộ phí</li>
                                                         </ul>
                                                         
-                                                        <h6>What to Bring</h6>
+                                                        <h6>Cần mang theo</h6>
                                                         <ul>
-                                                            <li>Child's vaccination record book (if available)</li>
-                                                            <li>Identification documents</li>
-                                                            <li>Insurance information (if applicable)</li>
+                                                            <li>Sổ theo dõi tiêm chủng của trẻ (nếu có)</li>
+                                                            <li>Giấy tờ tùy thân</li>
+                                                            <li>Thông tin bảo hiểm (nếu có)</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -340,43 +340,43 @@
                                         
                                         <div class="mt-4 d-flex justify-content-between">
                                             <button type="button" id="step3PrevBtn" class="btn btn-outline-secondary">
-                                                <i class="fas fa-arrow-left"></i> Previous
+                                                <i class="fas fa-arrow-left"></i> Quay lại
                                             </button>
                                             <button type="button" id="step3NextBtn" class="btn btn-primary" disabled>
-                                                Next <i class="fas fa-arrow-right"></i>
+                                                Tiếp theo <i class="fas fa-arrow-right"></i>
                                             </button>
                                         </div>
                                     </div>
                                     
                                     <!-- Step 4: Confirm & Book -->
                                     <div class="tab-pane fade" id="step4" role="tabpanel" aria-labelledby="step4-tab">
-                                        <h5 class="mb-4">Confirm Appointment Details</h5>
+                                        <h5 class="mb-4">Xác nhận thông tin lịch hẹn</h5>
                                         
                                         <div class="row">
                                             <div class="col-md-8">
                                                 <div class="card shadow mb-4">
                                                     <div class="card-header py-3">
-                                                        <h6 class="m-0 font-weight-bold text-primary">Appointment Summary</h6>
+                                                        <h6 class="m-0 font-weight-bold text-primary">Tóm tắt lịch hẹn</h6>
                                                     </div>
                                                     <div class="card-body">
                                                         <div class="row mb-3">
-                                                            <div class="col-sm-4 text-muted">Child:</div>
+                                                            <div class="col-sm-4 text-muted">Trẻ:</div>
                                                             <div class="col-sm-8 fw-bold" id="summary-child">-</div>
                                                         </div>
                                                         <div class="row mb-3">
-                                                            <div class="col-sm-4 text-muted">Service:</div>
+                                                            <div class="col-sm-4 text-muted">Dịch vụ:</div>
                                                             <div class="col-sm-8" id="summary-service">-</div>
                                                         </div>
                                                         <div class="row mb-3">
-                                                            <div class="col-sm-4 text-muted">Price:</div>
+                                                            <div class="col-sm-4 text-muted">Giá tiền:</div>
                                                             <div class="col-sm-8 fw-bold" id="summary-price">-</div>
                                                         </div>
                                                         <div class="row mb-3">
-                                                            <div class="col-sm-4 text-muted">Date & Time:</div>
+                                                            <div class="col-sm-4 text-muted">Ngày & giờ:</div>
                                                             <div class="col-sm-8" id="summary-datetime">-</div>
                                                         </div>
                                                         <div class="row mb-3">
-                                                            <div class="col-sm-4 text-muted">Additional Notes:</div>
+                                                            <div class="col-sm-4 text-muted">Ghi chú:</div>
                                                             <div class="col-sm-8" id="summary-notes">-</div>
                                                         </div>
                                                     </div>
@@ -389,9 +389,9 @@
                                                         <div class="row no-gutters align-items-center">
                                                             <div class="col mr-2">
                                                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                                    Payment Information</div>
-                                                                <div class="h5 mb-0 font-weight-bold text-gray-800">Pay at Clinic</div>
-                                                                <small class="text-muted">Payment will be collected after the appointment</small>
+                                                                    Thông tin thanh toán</div>
+                                                                <div class="h5 mb-0 font-weight-bold text-gray-800">Thanh toán tại phòng khám</div>
+                                                                <small class="text-muted">Thanh toán sẽ được thu sau khi tiêm chủng</small>
                                                             </div>
                                                             <div class="col-auto">
                                                                 <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -403,14 +403,14 @@
                                                 <div class="form-check mb-3">
                                                     <input class="form-check-input" type="checkbox" id="termsCheck" required>
                                                     <label class="form-check-label" for="termsCheck">
-                                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
+                                                        Tôi đồng ý với <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">điều khoản và điều kiện</a>
                                                     </label>
                                                 </div>
                                                 
                                                 <div class="form-check mb-3">
                                                     <input class="form-check-input" type="checkbox" id="reminderCheck" checked>
                                                     <label class="form-check-label" for="reminderCheck">
-                                                        Send me appointment reminders
+                                                        Gửi cho tôi thông báo nhắc lịch hẹn
                                                     </label>
                                                 </div>
                                             </div>
@@ -418,10 +418,10 @@
                                         
                                         <div class="mt-4 d-flex justify-content-between">
                                             <button type="button" id="step4PrevBtn" class="btn btn-outline-secondary">
-                                                <i class="fas fa-arrow-left"></i> Previous
+                                                <i class="fas fa-arrow-left"></i> Quay lại
                                             </button>
                                             <button type="submit" id="submitBtn" class="btn btn-success" disabled>
-                                                <i class="fas fa-check"></i> Confirm & Book Appointment
+                                                <i class="fas fa-check"></i> Xác nhận & Đặt lịch
                                             </button>
                                         </div>
                                     </div>
@@ -437,40 +437,40 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                            <h5 class="modal-title" id="termsModalLabel">Điều khoản và Điều kiện</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <h6>Appointment Terms</h6>
-                            <p>By booking an appointment, you agree to the following terms:</p>
+                            <h6>Điều khoản đặt lịch</h6>
+                            <p>Khi đặt lịch hẹn, bạn đồng ý với các điều khoản sau:</p>
                             <ul>
-                                <li>You must arrive 15 minutes before your scheduled appointment time.</li>
-                                <li>Cancellations must be made at least 24 hours in advance.</li>
-                                <li>Late cancellations or no-shows may incur a fee.</li>
-                                <li>Payment is due at the time of service.</li>
-                                <li>You agree to provide accurate and complete information about your child's health history.</li>
+                                <li>Bạn phải đến trước 15 phút so với giờ hẹn đã đặt.</li>
+                                <li>Việc hủy lịch phải được thực hiện ít nhất 24 giờ trước giờ hẹn.</li>
+                                <li>Hủy muộn hoặc không đến có thể phải trả phí.</li>
+                                <li>Thanh toán sẽ được thực hiện tại thời điểm sử dụng dịch vụ.</li>
+                                <li>Bạn đồng ý cung cấp thông tin chính xác và đầy đủ về lịch sử sức khỏe của trẻ.</li>
                             </ul>
                             
-                            <h6>Medical Consent</h6>
-                            <p>By confirming this appointment, you are giving consent for your child to receive the vaccines included in the selected service. You understand that:</p>
+                            <h6>Chấp thuận y tế</h6>
+                            <p>Khi xác nhận lịch hẹn này, bạn đang đồng ý cho phép con mình nhận các vắc-xin trong dịch vụ đã chọn. Bạn hiểu rằng:</p>
                             <ul>
-                                <li>All vaccines carry some risks of side effects.</li>
-                                <li>You will be provided with Vaccine Information Statements before vaccination.</li>
-                                <li>You will have the opportunity to ask questions before vaccination.</li>
-                                <li>You may withdraw consent at any time before the vaccination is administered.</li>
+                                <li>Tất cả vắc-xin đều có một số rủi ro về tác dụng phụ.</li>
+                                <li>Bạn sẽ được cung cấp Tờ thông tin về vắc-xin trước khi tiêm chủng.</li>
+                                <li>Bạn sẽ có cơ hội đặt câu hỏi trước khi tiêm chủng.</li>
+                                <li>Bạn có thể rút lại sự đồng ý bất cứ lúc nào trước khi tiêm vắc-xin.</li>
                             </ul>
                             
-                            <h6>Privacy Policy</h6>
-                            <p>We respect your privacy and will protect your personal information in accordance with applicable laws. Your information will be used only for:</p>
+                            <h6>Chính sách bảo mật</h6>
+                            <p>Chúng tôi tôn trọng quyền riêng tư của bạn và sẽ bảo vệ thông tin cá nhân của bạn theo quy định của pháp luật hiện hành. Thông tin của bạn sẽ chỉ được sử dụng cho:</p>
                             <ul>
-                                <li>Providing and managing vaccination services.</li>
-                                <li>Sending appointment reminders and vaccination updates.</li>
-                                <li>Maintaining vaccination records as required by law.</li>
-                                <li>Billing and administrative purposes.</li>
+                                <li>Cung cấp và quản lý dịch vụ tiêm chủng.</li>
+                                <li>Gửi nhắc nhở lịch hẹn và cập nhật về tiêm chủng.</li>
+                                <li>Duy trì hồ sơ tiêm chủng theo yêu cầu của pháp luật.</li>
+                                <li>Mục đích thanh toán và quản lý.</li>
                             </ul>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tôi đã hiểu</button>
                         </div>
                     </div>
                 </div>
@@ -628,7 +628,7 @@
                     new bootstrap.Tab(step2Tab).show();
                     step2Tab.classList.remove('disabled');
                     progressBar.style.width = '50%';
-                    progressBar.textContent = 'Step 2 of 4';
+                    progressBar.textContent = 'Bước 2/4';
                     progressBar.setAttribute('aria-valuenow', '50');
                 });
                 
@@ -636,7 +636,7 @@
                     // Go back to step 1
                     new bootstrap.Tab(step1Tab).show();
                     progressBar.style.width = '25%';
-                    progressBar.textContent = 'Step 1 of 4';
+                    progressBar.textContent = 'Bước 1/4';
                     progressBar.setAttribute('aria-valuenow', '25');
                 });
                 
@@ -645,7 +645,7 @@
                     new bootstrap.Tab(step3Tab).show();
                     step3Tab.classList.remove('disabled');
                     progressBar.style.width = '75%';
-                    progressBar.textContent = 'Step 3 of 4';
+                    progressBar.textContent = 'Bước 3/4';
                     progressBar.setAttribute('aria-valuenow', '75');
                     
                     // Set the min date to today
@@ -661,7 +661,7 @@
                     // Go back to step 2
                     new bootstrap.Tab(step2Tab).show();
                     progressBar.style.width = '50%';
-                    progressBar.textContent = 'Step 2 of 4';
+                    progressBar.textContent = 'Bước 2/4';
                     progressBar.setAttribute('aria-valuenow', '50');
                 });
                 
@@ -670,7 +670,7 @@
                     new bootstrap.Tab(step4Tab).show();
                     step4Tab.classList.remove('disabled');
                     progressBar.style.width = '100%';
-                    progressBar.textContent = 'Step 4 of 4';
+                    progressBar.textContent = 'Bước 4/4';
                     progressBar.setAttribute('aria-valuenow', '100');
                 });
                 
@@ -678,7 +678,7 @@
                     // Go back to step 3
                     new bootstrap.Tab(step3Tab).show();
                     progressBar.style.width = '75%';
-                    progressBar.textContent = 'Step 3 of 4';
+                    progressBar.textContent = 'Bước 3/4';
                     progressBar.setAttribute('aria-valuenow', '75');
                 });
                 
@@ -687,9 +687,9 @@
                     const recommendedServicesContainer = document.getElementById('recommended-services');
                     recommendedServicesContainer.innerHTML = `
                         <div class="col-12 text-center py-4">
-                            <p class="text-muted">Loading recommended services...</p>
+                            <p class="text-muted">Đang tải dịch vụ được đề xuất...</p>
                             <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">Đang tải...</span>
                             </div>
                         </div>
                     `;
@@ -702,8 +702,8 @@
                                 recommendedServicesContainer.innerHTML = `
                                     <div class="col-12 text-center py-4">
                                         <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                                        <h5>No Recommendations</h5>
-                                        <p class="text-muted">All vaccinations are up to date for this child.</p>
+                                        <h5>Không Có Đề Xuất</h5>
+                                        <p class="text-muted">Tất cả vắc-xin của trẻ đều đã được cập nhật.</p>
                                     </div>
                                 `;
                                 return;
@@ -724,8 +724,8 @@
                                         recommendedServicesContainer.innerHTML = `
                                             <div class="col-12 text-center py-4">
                                                 <i class="fas fa-info-circle fa-3x text-info mb-3"></i>
-                                                <h5>No Matching Services</h5>
-                                                <p class="text-muted">No services found for the recommended vaccines. Please select from the Individual Vaccines tab.</p>
+                                                <h5>Không Có Dịch Vụ Phù Hợp</h5>
+                                                <p class="text-muted">Không tìm thấy dịch vụ nào phù hợp với vắc-xin được đề xuất. Vui lòng chọn từ tab Vắc-xin Đơn Lẻ.</p>
                                             </div>
                                         `;
                                         return;
@@ -745,10 +745,10 @@
                                                         </div>
                                                         <p class="card-text">${service.description.length > 120 ? service.description.substring(0, 120) + '...' : service.description}</p>
                                                         <div class="mb-3">
-                                                            <small class="text-muted">Included Vaccines:</small>
+                                                            <small class="text-muted">Vắc-xin bao gồm:</small>
                                                             <ul class="list-group list-group-flush small">
                                                                 ${service.vaccines.map(vaccine => `<li class="list-group-item px-0 ${vaccineIds.includes(vaccine.id) ? 'fw-bold text-success' : ''}">${vaccine.name} ${vaccineIds.includes(vaccine.id) ? '<i class="fas fa-check-circle text-success ms-1"></i>' : ''}</li>`).join('')}
-                                                                ${service.vaccines.length === 0 ? '<li class="list-group-item px-0 text-muted">Custom vaccines based on needs</li>' : ''}
+                                                                ${service.vaccines.length === 0 ? '<li class="list-group-item px-0 text-muted">Tùy chỉnh vắc-xin theo nhu cầu</li>' : ''}
                                                             </ul>
                                                         </div>
                                                         <div class="d-flex justify-content-between">
@@ -790,8 +790,8 @@
                                     recommendedServicesContainer.innerHTML = `
                                         <div class="col-12 text-center py-4">
                                             <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
-                                            <h5>Error</h5>
-                                            <p class="text-muted">Failed to load recommended services. Please try again.</p>
+                                            <h5>Lỗi</h5>
+                                            <p class="text-muted">Không thể tải dịch vụ được đề xuất. Vui lòng thử lại.</p>
                                         </div>
                                     `;
                                 });
@@ -801,8 +801,8 @@
                             recommendedServicesContainer.innerHTML = `
                                 <div class="col-12 text-center py-4">
                                     <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
-                                    <h5>Error</h5>
-                                    <p class="text-muted">Failed to load recommendations. Please try again.</p>
+                                    <h5>Lỗi</h5>
+                                    <p class="text-muted">Không thể tải đề xuất vắc-xin. Vui lòng thử lại.</p>
                                 </div>
                             `;
                         });
@@ -812,9 +812,9 @@
                     const timeSlotsContainer = document.getElementById('timeSlots');
                     timeSlotsContainer.innerHTML = `
                         <div class="col-12 text-center py-4">
-                            <p class="text-muted">Loading available time slots...</p>
+                            <p class="text-muted">Đang tải khung giờ khả dụng...</p>
                             <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">Đang tải...</span>
                             </div>
                         </div>
                     `;
@@ -826,8 +826,8 @@
                         timeSlotsContainer.innerHTML = `
                             <div class="col-12 text-center py-4">
                                 <i class="fas fa-calendar-times fa-3x text-danger mb-3"></i>
-                                <h5>Weekend Closure</h5>
-                                <p class="text-muted">Our clinic is closed on weekends. Please select a weekday.</p>
+                                <h5>Đóng Cửa Cuối Tuần</h5>
+                                <p class="text-muted">Trung tâm chúng tôi đóng cửa vào cuối tuần. Vui lòng chọn ngày trong tuần.</p>
                             </div>
                         `;
                         return;
