@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Header</title>
+    <title>Đầu trang</title>
 </head>
 <body>
     <nav th:fragment="header" class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -15,7 +15,7 @@
         <!-- Topbar Search -->
         <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div class="input-group">
-                <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                <input type="text" class="form-control bg-light border-0 small" placeholder="Tìm kiếm..."
                     aria-label="Search" aria-describedby="basic-addon2">
                 <div class="input-group-append">
                     <button class="btn btn-primary" type="button">
@@ -39,7 +39,7 @@
                     <form class="form-inline mr-auto w-100 navbar-search">
                         <div class="input-group">
                             <input type="text" class="form-control bg-light border-0 small"
-                                placeholder="Search for..." aria-label="Search"
+                                placeholder="Tìm kiếm..." aria-label="Search"
                                 aria-describedby="basic-addon2">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button">
@@ -63,7 +63,7 @@
                 <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                     aria-labelledby="alertsDropdown">
                     <h6 class="dropdown-header">
-                        Notifications Center
+                        Trung tâm thông báo
                     </h6>
                     <div id="notification-items">
                         <!-- Notifications will be loaded here -->
@@ -74,12 +74,12 @@
                                 </div>
                             </div>
                             <div>
-                                <div class="small text-gray-500">Loading notifications...</div>
-                                <span>Please wait</span>
+                                <div class="small text-gray-500">Đang tải thông báo...</div>
+                                <span>Vui lòng đợi</span>
                             </div>
                         </a>
                     </div>
-                    <a class="dropdown-item text-center small text-gray-500" href="/customer/notifications">Show All Notifications</a>
+                    <a class="dropdown-item text-center small text-gray-500" href="/customer/notifications">Xem tất cả thông báo</a>
                 </div>
             </li>
 
@@ -97,21 +97,21 @@
                     aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="#" sec:authorize="hasRole('CUSTOMER')">
                         <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Profile
+                        Hồ sơ cá nhân
                     </a>
                     <a class="dropdown-item" href="#" sec:authorize="hasRole('CUSTOMER')">
                         <i class="fas fa-child fa-sm fa-fw mr-2 text-gray-400"></i>
-                        My Children
+                        Con của tôi
                     </a>
                     <a class="dropdown-item" href="#" sec:authorize="hasRole('CUSTOMER')">
                         <i class="fas fa-syringe fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Vaccinations
+                        Tiêm chủng
                     </a>
                     <div class="dropdown-divider"></div>
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" class="dropdown-item">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Logout
+                            Đăng xuất
                         </button>
                     </form>
                 </div>
@@ -121,13 +121,13 @@
             <li class="nav-item" sec:authorize="!isAuthenticated()">
                 <a class="nav-link" th:href="@{/login}">
                     <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Login
+                    Đăng nhập
                 </a>
             </li>
             <li class="nav-item" sec:authorize="!isAuthenticated()">
                 <a class="nav-link" th:href="@{/register}">
                     <i class="fas fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Register
+                    Đăng ký
                 </a>
             </li>
         </ul>
@@ -187,8 +187,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="small text-gray-500">Now</div>
-                                    <span>No new notifications</span>
+                                    <div class="small text-gray-500">Hiện tại</div>
+                                    <span>Không có thông báo mới</span>
                                 </div>
                             </a>
                         `;

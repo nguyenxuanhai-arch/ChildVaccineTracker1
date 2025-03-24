@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Sidebar</title>
+    <title>Thanh bên</title>
 </head>
 <body>
     <!-- Sidebar -->
@@ -13,7 +13,7 @@
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fas fa-syringe"></i>
             </div>
-            <div class="sidebar-brand-text mx-3">Vaccine MS</div>
+            <div class="sidebar-brand-text mx-3">Hệ thống Tiêm chủng</div>
         </a>
 
         <!-- Divider -->
@@ -23,31 +23,31 @@
         <li class="nav-item">
             <a class="nav-link" th:href="@{/}">
                 <i class="fas fa-fw fa-home"></i>
-                <span>Home</span>
+                <span>Trang chủ</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" th:href="@{/services}">
                 <i class="fas fa-fw fa-stethoscope"></i>
-                <span>Services</span>
+                <span>Dịch vụ</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" th:href="@{/pricelist}">
                 <i class="fas fa-fw fa-tags"></i>
-                <span>Price List</span>
+                <span>Bảng giá</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" th:href="@{/vaccine-guide}">
                 <i class="fas fa-fw fa-book-medical"></i>
-                <span>Vaccine Guide</span>
+                <span>Hướng dẫn vắc-xin</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" th:href="@{/about}">
                 <i class="fas fa-fw fa-info-circle"></i>
-                <span>About Us</span>
+                <span>Về chúng tôi</span>
             </a>
         </li>
 
@@ -57,43 +57,43 @@
         <!-- Customer Navigation Items -->
         <div sec:authorize="hasRole('CUSTOMER')">
             <div class="sidebar-heading">
-                Customer
+                Khách hàng
             </div>
 
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/customer/dashboard}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <span>Bảng điều khiển</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/customer/children}">
                     <i class="fas fa-fw fa-child"></i>
-                    <span>My Children</span>
+                    <span>Con của tôi</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/customer/appointments}">
                     <i class="fas fa-fw fa-calendar-alt"></i>
-                    <span>Appointments</span>
+                    <span>Cuộc hẹn</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/customer/vaccinations}">
                     <i class="fas fa-fw fa-syringe"></i>
-                    <span>Vaccinations</span>
+                    <span>Tiêm chủng</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/customer/notifications}">
                     <i class="fas fa-fw fa-bell"></i>
-                    <span>Notifications</span>
+                    <span>Thông báo</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/customer/feedback}">
                     <i class="fas fa-fw fa-comment"></i>
-                    <span>Feedback</span>
+                    <span>Phản hồi</span>
                 </a>
             </li>
         </div>
@@ -101,43 +101,43 @@
         <!-- Staff Navigation Items -->
         <div sec:authorize="hasAnyRole('STAFF', 'ADMIN')">
             <div class="sidebar-heading">
-                Staff
+                Nhân viên
             </div>
 
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/staff/dashboard}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Staff Dashboard</span>
+                    <span>Bảng điều khiển nhân viên</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/staff/appointments}">
                     <i class="fas fa-fw fa-calendar-check"></i>
-                    <span>Appointment Management</span>
+                    <span>Quản lý cuộc hẹn</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/staff/children}">
                     <i class="fas fa-fw fa-user-md"></i>
-                    <span>Child Records</span>
+                    <span>Hồ sơ trẻ em</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/staff/vaccinations}">
                     <i class="fas fa-fw fa-syringe"></i>
-                    <span>Vaccination Records</span>
+                    <span>Hồ sơ tiêm chủng</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/staff/vaccinations/record}">
                     <i class="fas fa-fw fa-notes-medical"></i>
-                    <span>Record Vaccination</span>
+                    <span>Ghi nhận tiêm chủng</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/staff/notifications/send}">
                     <i class="fas fa-fw fa-bell"></i>
-                    <span>Send Notifications</span>
+                    <span>Gửi thông báo</span>
                 </a>
             </li>
         </div>
@@ -145,49 +145,49 @@
         <!-- Admin Navigation Items -->
         <div sec:authorize="hasRole('ADMIN')">
             <div class="sidebar-heading">
-                Admin
+                Quản trị viên
             </div>
 
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/dashboard}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Admin Dashboard</span>
+                    <span>Bảng điều khiển quản trị</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/users}">
                     <i class="fas fa-fw fa-users"></i>
-                    <span>User Management</span>
+                    <span>Quản lý người dùng</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/services}">
                     <i class="fas fa-fw fa-clipboard-list"></i>
-                    <span>Service Management</span>
+                    <span>Quản lý dịch vụ</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/vaccines}">
                     <i class="fas fa-fw fa-prescription-bottle"></i>
-                    <span>Vaccine Management</span>
+                    <span>Quản lý vắc-xin</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/appointments}">
                     <i class="fas fa-fw fa-calendar"></i>
-                    <span>All Appointments</span>
+                    <span>Tất cả cuộc hẹn</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/feedbacks}">
                     <i class="fas fa-fw fa-star"></i>
-                    <span>Feedback & Ratings</span>
+                    <span>Phản hồi & Đánh giá</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/reports}">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Reports</span>
+                    <span>Báo cáo</span>
                 </a>
             </li>
         </div>
