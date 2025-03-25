@@ -1,0 +1,61 @@
+
+.timeline-container {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 20px 0;
+    border-left: 2px solid #e3e6f0;
+    margin-left: 20px;
+}
+
+.timeline-content {
+    margin-left: 30px;
+}
+
+.timeline-item-circle {
+    position: absolute;
+    left: -11px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4e73df;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-item-circle i {
+    color: white;
+    font-size: 0.7rem;
+}
+
+.vaccination-progress {
+    padding: 1rem;
+}
+
+.progress {
+    height: 20px;
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.dropdown-menu {
+    font-size: 0.85rem;
+}
+
+.dropdown-header {
+    font-weight: 800;
+    font-size: 0.65rem;
+    color: #b7b9cc;
+}
