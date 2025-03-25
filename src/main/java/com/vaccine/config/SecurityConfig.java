@@ -1,4 +1,3 @@
-
 package com.vaccine.config;
 
 import com.vaccine.service.UserService;
@@ -44,24 +43,25 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/", "/home", "/about", "/services", "/pricelist", "/vaccine-guide", "/api/auth/**",
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/static/**").permitAll()
+                .requestMatchers("/", "/home", "/about", "/services", "/pricelist", "/vaccine-guide", "/api/auth/**",
                         "/css/**", "/js/**", "/images/**", "/error").permitAll()
                     .requestMatchers("/api/admin/**", "/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/staff/**", "/staff/**").hasAnyRole("ADMIN", "STAFF")
                     .requestMatchers("/api/customer/**", "/customer/**").hasAnyRole("ADMIN", "STAFF", "CUSTOMER")
                     .anyRequest().authenticated()
             );
-        
+
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        
+
         return http.build();
     }
 }

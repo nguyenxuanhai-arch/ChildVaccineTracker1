@@ -24,7 +24,7 @@ import com.vaccine.service.VaccineService;
 import jakarta.validation.Valid;
 
 @Controller
-@RequestMapping("/services")
+@RequestMapping({"/services", "/static/services"})
 public class ServiceController {
 
     @Autowired
