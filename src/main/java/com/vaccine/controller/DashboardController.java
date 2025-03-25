@@ -111,17 +111,13 @@ public class DashboardController {
                 .limit(5)
                 .toList());
 
-        // Get unread notifications count
+        // Get notification service using autowiring instead of manual lookup
         com.vaccine.service.NotificationService notificationService = 
-            org.springframework.beans.factory.annotation.Autowired.class.cast(
-                org.springframework.context.ApplicationContext.class.cast(
-                    org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(
-                        jakarta.servlet.ServletContext.class.cast(
-                            org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes().resolveReference("request")
-                        ).getServletContext()
-                    )
-                ).getBean("notificationService")
-            );
+            org.springframework.beans.factory.BeanFactory.class.cast(
+                org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes().getAttribute(
+                    "org.springframework.web.servlet.DispatcherServlet.CONTEXT", 0
+                )
+            ).getBean(com.vaccine.service.NotificationService.class);
         
         model.addAttribute("unreadNotifications", notificationService.getUnreadCount(currentUser.getId()));
 

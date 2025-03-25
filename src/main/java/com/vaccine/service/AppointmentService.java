@@ -35,4 +35,6 @@ public interface AppointmentService {
     boolean isValidAppointmentTime(LocalDateTime dateTime);
     
     boolean canCancelAppointment(Long appointmentId, User user);
+    
+    Integer countByStatusAndDateRange(Appointment.Status status, LocalDateTime startDate, LocalDateTime endDate);
 }

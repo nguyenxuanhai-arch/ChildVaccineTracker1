@@ -224,4 +224,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         
         return isParent && isNotCompletedOrCancelled && is24HoursInFuture;
     }
+    
+    @Override
+    public Integer countByStatusAndDateRange(Appointment.Status status, LocalDateTime startDate, LocalDateTime endDate) {
+        return appointmentRepository.countByStatusAndDateRange(status, startDate, endDate);
+    }
 }

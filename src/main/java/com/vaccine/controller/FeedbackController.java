@@ -223,7 +223,7 @@ public class FeedbackController {
         
         // Admin can delete any feedback, customers can only delete their own
         if (feedbackOpt.isEmpty() || 
-            (!currentUser.getRoles().stream().anyMatch(r -> r.getName() == Role.RoleName.ROLE_ADMIN) && 
+            (!currentUser.getRoles().stream().anyMatch(r -> r.getName() == com.vaccine.entity.Role.RoleName.ROLE_ADMIN) && 
              !feedbackOpt.get().getUser().getId().equals(currentUser.getId()))) {
             return ResponseEntity.badRequest().body(Map.of(
                 "success", false,
