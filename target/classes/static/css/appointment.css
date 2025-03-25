@@ -1,0 +1,102 @@
+.appointment-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.appointment-form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.time-slot {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    padding: 0.75rem;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.time-slot:hover {
+    background-color: rgba(44, 123, 229, 0.1);
+    border-color: var(--primary);
+}
+
+.time-slot.selected {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.time-slot.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--light);
+}
+
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.notification-container .alert {
+  margin-bottom: 10px;
+  min-width: 300px;
+}
+
+.tab-pane {
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s ease-in-out;
+    display: none;
+}
+
+.tab-pane.active {
+    opacity: 1;
+    transform: translateX(0);
+    display: block;
+}
+
+.step-transition {
+    transition: all 0.4s ease;
+}
+
+.progress-bar {
+    transition: width 0.4s ease-in-out;
+}
+
+
+.summary-section {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease-out;
+}
+
+.summary-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}

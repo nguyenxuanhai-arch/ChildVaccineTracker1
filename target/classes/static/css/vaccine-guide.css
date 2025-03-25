@@ -1,0 +1,134 @@
+
+/* Vaccine Guide Styles */
+.vaccine-guide {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.vaccine-schedule {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.vaccine-timeline {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.timeline-marker {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-right: 1rem;
+}
+
+.timeline-content {
+  flex: 1;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.vaccine-alerts {
+  padding: 1rem;
+  border-left: 4px solid var(--warning);
+  background: #fff8e1;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.vaccine-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-completed {
+  background: var(--success);
+  color: white;
+}
+
+.status-pending {
+  background: var(--warning);
+  color: white;
+}
+
+.status-overdue {
+  background: var(--danger);
+  color: white;
+}
+
+.vaccine-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: white;
+  transition: transform 0.2s ease;
+}
+
+.vaccine-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.vaccine-schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.vaccine-schedule-table th,
+.vaccine-schedule-table td {
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.vaccine-schedule-table th {
+  background-color: var(--light);
+  font-weight: 600;
+}
+
+.vaccine-info {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.vaccine-info-icon {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.vaccine-benefits {
+  list-style: none;
+  padding: 0;
+}
+
+.vaccine-benefits li {
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.vaccine-benefits li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--success);
+}
