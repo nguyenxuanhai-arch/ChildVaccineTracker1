@@ -15,6 +15,12 @@
   --danger: #dc3545;
   --light: #f8f9fa;
   --dark: #212529;
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
 }
 
 /* Global Styles */
@@ -25,6 +31,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+main {
+    flex: 1;
 }
 
 .footer {
@@ -70,7 +80,7 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background-color: var(--primary-color); /* Using new primary color */
   border: none;
   background-color: #4e73df;
   border-color: #4e73df;
@@ -146,7 +156,7 @@ body {
 }
 
 .form-control:focus {
-  border-color: var(--primary);
+  border-color: var(--primary-color); /* Using new primary color */
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     border-color: #4e73df;
     box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
@@ -311,6 +321,14 @@ body {
     width: 40px;
     height: 40px;
   }
+
+    .navbar-nav {
+        text-align: center;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0;
+    }
 }
 
 /* Custom Utility Classes */
@@ -353,4 +371,35 @@ body {
 
 .was-validated .form-control:invalid {
     border-color: #e74a3b;
+}
+
+/* Progress Steps */
+.progress-steps .nav-link {
+    color: var(--secondary-color);
+    padding: 1rem;
+    border-radius: 0;
+    position: relative;
+}
+
+.progress-steps .nav-link.active {
+    color: var(--primary-color);
+    background-color: transparent;
+}
+
+.progress-steps .nav-link.completed {
+    color: var(--success-color);
+}
+
+/* Custom Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.navbar-brand i {
+    color: #fff;
 }
