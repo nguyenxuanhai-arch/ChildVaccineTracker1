@@ -48,6 +48,19 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     @Transactional
+    public Feedback updateFeedback(Long id, FeedbackDTO feedbackDTO, User user) {
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Feedback not found with id: " + id));
+        
+        feedback.setComment(feedbackDTO.getComment());
+        feedback.setRating(feedbackDTO.getRating());
+        feedback.setUpdatedAt(LocalDateTime.now());
+        
+        return feedbackRepository.save(feedback);
+    }
+
+    @Override
+    @Transactional
     public void deleteFeedback(Long id) {
         feedbackRepository.deleteById(id);
     }
@@ -67,12 +80,6 @@ public class FeedbackServiceImpl implements FeedbackService {
             .count();
     }
 }
-
-    @Override
-    @Transactional
-    public Feedback updateFeedback(Long id, FeedbackDTO feedbackDTO, User user) {
-        Feedback feedback = feedbackRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Feedback not found with id: " + id));
         
         // Check if user is the owner of this feedback
         if (!feedback.getUser().getId().equals(user.getId())) {

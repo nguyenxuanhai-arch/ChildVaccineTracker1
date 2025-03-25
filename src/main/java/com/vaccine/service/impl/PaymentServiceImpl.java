@@ -66,6 +66,55 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public Payment updatePaymentStatus(Long paymentId, Payment.PaymentStatus status) {
         Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        payment.setStatus(status);
+        payment.setUpdatedAt(LocalDateTime.now());
+        return paymentRepository.save(payment);
+    }
+
+    @Override
+    @Transactional
+    public Payment processPayment(Long paymentId, String transactionId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        payment.setTransactionId(transactionId);
+        payment.setStatus(Payment.PaymentStatus.COMPLETED);
+        payment.setProcessedAt(LocalDateTime.now());
+        
+        notificationService.sendPaymentConfirmation(payment);
+        return paymentRepository.save(payment);
+    }
+
+    @Override
+    @Transactional
+    public Payment refundPayment(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        payment.setStatus(Payment.PaymentStatus.REFUNDED);
+        payment.setRefundedAt(LocalDateTime.now());
+        
+        notificationService.sendRefundConfirmation(payment);
+        return paymentRepository.save(payment);
+    }
+
+    @Override
+    public BigDecimal calculateRevenueForPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        return paymentRepository.findByCreatedAtBetweenAndStatus(startDate, endDate, Payment.PaymentStatus.COMPLETED)
+                .stream()
+                .map(Payment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public int countPaymentsByStatusForPeriod(Payment.PaymentStatus status, LocalDateTime startDate, LocalDateTime endDate) {
+        return paymentRepository.countByStatusAndCreatedAtBetween(status, startDate, endDate);
+    }
+}
+
+    @Override
+    @Transactional
+    public Payment updatePaymentStatus(Long paymentId, Payment.PaymentStatus status) {
+        Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found with id: " + paymentId));
         
         payment.setStatus(status);
