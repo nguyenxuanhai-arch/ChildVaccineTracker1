@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Báo cáo tác dụng phụ</title>
+    <link rel="stylesheet" th:href="@{/css/side-effects.css}">
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container my-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Báo cáo tác dụng phụ sau tiêm chủng</h6>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/staff/report-side-effects}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Chọn bệnh nhân</label>
+                            <select class="form-select" name="patientId" required>
+                                <option value="">-- Chọn bệnh nhân --</option>
+                                <option th:each="patient : ${patients}" 
+                                        th:value="${patient.id}" 
+                                        th:text="${patient.fullName}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Vắc-xin đã tiêm</label>
+                            <select class="form-select" name="vaccinationId" required>
+                                <option value="">-- Chọn vắc-xin --</option>
+                                <option th:each="vaccination : ${vaccinations}" 
+                                        th:value="${vaccination.id}"
+                                        th:text="${vaccination.vaccine.name + ' - ' + #temporals.format(vaccination.date, 'dd/MM/yyyy')}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Mức độ nghiêm trọng</label>
+                            <select class="form-select" name="severity" required>
+                                <option value="MILD">Nhẹ</option>
+                                <option value="MODERATE">Trung bình</option>
+                                <option value="SEVERE">Nặng</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả triệu chứng</label>
+                            <textarea class="form-control" name="symptoms" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hành động đã thực hiện</label>
+                            <textarea class="form-control" name="actionsTaken" rows="3" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Lưu báo cáo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
