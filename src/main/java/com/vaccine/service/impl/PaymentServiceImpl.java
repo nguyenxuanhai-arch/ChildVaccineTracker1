@@ -1,8 +1,10 @@
 package com.vaccine.service.impl;
 
-import com.vaccine.entity.Appointment;
+import com.vaccine.dto.PaymentDTO;
 import com.vaccine.entity.Payment;
+import com.vaccine.entity.Appointment;
 import com.vaccine.repository.PaymentRepository;
+import com.vaccine.repository.AppointmentRepository;
 import com.vaccine.service.NotificationService;
 import com.vaccine.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,26 +21,26 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
     
     @Autowired
     private NotificationService notificationService;
 
     @Override
     @Transactional
-    public Payment createPayment(Appointment appointment, BigDecimal amount, Payment.PaymentMethod method) {
-        // Check if payment already exists for this appointment
-        Optional<Payment> existingPayment = paymentRepository.findByAppointmentId(appointment.getId());
-        if (existingPayment.isPresent()) {
-            throw new RuntimeException("Payment already exists for this appointment");
-        }
-        
+    public Payment createPayment(PaymentDTO paymentDTO) {
         Payment payment = new Payment();
-        payment.setAppointment(appointment);
-        payment.setAmount(amount);
-        payment.setMethod(method);
+        payment.setAmount(paymentDTO.getAmount());
+        payment.setPaymentMethod(paymentDTO.getPaymentMethod());
         payment.setStatus(Payment.PaymentStatus.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
-        
+
+        Appointment appointment = appointmentRepository.findById(paymentDTO.getAppointmentId())
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        payment.setAppointment(appointment);
+
         return paymentRepository.save(payment);
     }
 
@@ -48,13 +50,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Optional<Payment> findByAppointmentId(Long appointmentId) {
+    public List<Payment> findByAppointmentId(Long appointmentId) {
         return paymentRepository.findByAppointmentId(appointmentId);
-    }
-
-    @Override
-    public List<Payment> findByStatus(Payment.PaymentStatus status) {
-        return paymentRepository.findByStatus(status);
     }
 
     @Override
@@ -64,9 +61,21 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
+    public Payment updatePaymentStatus(Long id, Payment.PaymentStatus status) {
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+        payment.setStatus(status);
+        payment.setUpdatedAt(LocalDateTime.now());
+
+        return paymentRepository.save(payment);
+    }
+    
+    @Override
+    @Transactional
     public Payment updatePaymentStatus(Long paymentId, Payment.PaymentStatus status) {
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + paymentId));
         payment.setStatus(status);
         payment.setUpdatedAt(LocalDateTime.now());
         return paymentRepository.save(payment);
@@ -74,53 +83,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public Payment processPayment(Long paymentId, String transactionId) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-        payment.setTransactionId(transactionId);
-        payment.setStatus(Payment.PaymentStatus.COMPLETED);
-        payment.setProcessedAt(LocalDateTime.now());
-        
-        notificationService.sendPaymentConfirmation(payment);
-        return paymentRepository.save(payment);
-    }
-
-    @Override
-    @Transactional
-    public Payment refundPayment(Long paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-        payment.setStatus(Payment.PaymentStatus.REFUNDED);
-        payment.setRefundedAt(LocalDateTime.now());
-        
-        notificationService.sendRefundConfirmation(payment);
-        return paymentRepository.save(payment);
-    }
-
-    @Override
-    public BigDecimal calculateRevenueForPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return paymentRepository.findByCreatedAtBetweenAndStatus(startDate, endDate, Payment.PaymentStatus.COMPLETED)
-                .stream()
-                .map(Payment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    @Override
-    public int countPaymentsByStatusForPeriod(Payment.PaymentStatus status, LocalDateTime startDate, LocalDateTime endDate) {
-        return paymentRepository.countByStatusAndCreatedAtBetween(status, startDate, endDate);
-    }
-}
-
-    @Override
-    @Transactional
-    public Payment updatePaymentStatus(Long paymentId, Payment.PaymentStatus status) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + paymentId));
-        
-        payment.setStatus(status);
-        payment.setUpdatedAt(LocalDateTime.now());
-        
-        return paymentRepository.save(payment);
+    public void deletePayment(Long id) {
+        paymentRepository.deleteById(id);
     }
 
     @Override
@@ -128,31 +92,24 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment processPayment(Long paymentId, String transactionId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found with id: " + paymentId));
-        
         if (payment.getStatus() != Payment.PaymentStatus.PENDING) {
             throw new RuntimeException("Payment is not in PENDING status");
         }
-        
         payment.setStatus(Payment.PaymentStatus.COMPLETED);
         payment.setTransactionId(transactionId);
         payment.setPaymentDate(LocalDateTime.now());
         payment.setUpdatedAt(LocalDateTime.now());
-        
         Payment completedPayment = paymentRepository.save(payment);
-        
-        // Create a notification for the payment receipt
         String title = "Payment Received";
         String message = "Your payment of " + payment.getAmount() + " for appointment on " + 
                          payment.getAppointment().getAppointmentDate().toLocalDate() + 
                          " has been processed successfully.";
-        
         notificationService.createNotification(
             payment.getAppointment().getChild().getParent(),
             title,
             message,
             com.vaccine.entity.Notification.NotificationType.SYSTEM_NOTIFICATION
         );
-        
         return completedPayment;
     }
 
@@ -161,29 +118,22 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment refundPayment(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found with id: " + paymentId));
-        
         if (payment.getStatus() != Payment.PaymentStatus.COMPLETED) {
             throw new RuntimeException("Only completed payments can be refunded");
         }
-        
         payment.setStatus(Payment.PaymentStatus.REFUNDED);
         payment.setUpdatedAt(LocalDateTime.now());
-        
         Payment refundedPayment = paymentRepository.save(payment);
-        
-        // Create a notification for the refund
         String title = "Payment Refunded";
         String message = "Your payment of " + payment.getAmount() + " for appointment on " + 
                          payment.getAppointment().getAppointmentDate().toLocalDate() + 
                          " has been refunded.";
-        
         notificationService.createNotification(
             payment.getAppointment().getChild().getParent(),
             title,
             message,
             com.vaccine.entity.Notification.NotificationType.SYSTEM_NOTIFICATION
         );
-        
         return refundedPayment;
     }
 
