@@ -65,3 +65,39 @@
     background-color: #fff3cd;
     color: #856404;
 }
+.vaccination-record {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.patient-info {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.vaccination-history {
+    margin-top: 20px;
+}
+
+.table th {
+    background-color: #f1f1f1;
+}
+
+.action-buttons .btn {
+    margin-right: 5px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.btn-add-vaccination {
+    min-width: 120px;
+}
