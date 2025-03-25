@@ -1,10 +1,9 @@
-
 // Utility Functions
 const utils = {
   formatDate: (date) => {
     return new Date(date).toLocaleDateString('vi-VN');
   },
-  
+
   formatCurrency: (amount) => {
     return new Intl.NumberFormat('vi-VN', { 
       style: 'currency', 
@@ -34,11 +33,11 @@ const validateForm = (formElement) => {
 const showToast = (message, type = 'info') => {
   const toastContainer = document.getElementById('toast-container') 
     || createToastContainer();
-  
+
   const toast = document.createElement('div');
   toast.className = `toast toast-${type} show`;
   toast.innerHTML = message;
-  
+
   toastContainer.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 };
@@ -54,7 +53,7 @@ const createToastContainer = () => {
 const toggleSidebar = () => {
   const sidebar = document.querySelector('.sidebar');
   const content = document.querySelector('#content-wrapper');
-  
+
   if (sidebar && content) {
     sidebar.classList.toggle('collapsed');
     content.classList.toggle('expanded');
@@ -74,7 +73,7 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-// DataTable initialization
+//DataTable initialization
 const initDataTable = (tableId, options = {}) => {
   const table = document.getElementById(tableId);
   if (!table) return;
@@ -89,8 +88,111 @@ const initDataTable = (tableId, options = {}) => {
   return new DataTable(table, { ...defaultOptions, ...options });
 };
 
-// Event Listeners
+
+// Main JavaScript functionality
+class NotificationManager {
+    constructor() {
+        this.container = document.querySelector('.notification-container');
+        if (!this.container) {
+            this.container = document.createElement('div');
+            this.container.className = 'notification-container';
+            document.body.appendChild(this.container);
+        }
+    }
+
+    show(message, type = 'info', duration = 5000) {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+
+        this.container.appendChild(notification);
+        setTimeout(() => notification.remove(), duration);
+    }
+}
+
+class ProfileManager {
+    constructor() {
+        this.initializeProfile();
+        this.attachEventListeners();
+    }
+
+    initializeProfile() {
+        this.profileForm = document.getElementById('profileForm');
+        this.avatarUpload = document.getElementById('avatarUpload');
+    }
+
+    attachEventListeners() {
+        if (this.profileForm) {
+            this.profileForm.addEventListener('submit', this.handleProfileUpdate.bind(this));
+        }
+        if (this.avatarUpload) {
+            this.avatarUpload.addEventListener('change', this.handleAvatarUpload.bind(this));
+        }
+    }
+
+    async handleProfileUpdate(event) {
+        event.preventDefault();
+        const formData = new FormData(this.profileForm);
+
+        try {
+            const response = await fetch('/api/profile/update', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                }
+            });
+
+            if (!response.ok) throw new Error('Cập nhật thất bại');
+
+            notificationManager.show('Cập nhật thông tin thành công!', 'success');
+        } catch (error) {
+            notificationManager.show(error.message, 'danger');
+        }
+    }
+
+    async handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await fetch('/api/profile/avatar', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                }
+            });
+
+            if (!response.ok) throw new Error('Tải ảnh thất bại');
+
+            notificationManager.show('Cập nhật ảnh đại diện thành công!', 'success');
+        } catch (error) {
+            notificationManager.show(error.message, 'danger');
+        }
+    }
+}
+
+// Initialize managers
+const notificationManager = new NotificationManager();
+const profileManager = new ProfileManager();
+
+// Global event handlers
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+    // Initialize Bootstrap popovers
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    popoverTriggerList.map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+
   // Form validation
   const forms = document.querySelectorAll('form');
   forms.forEach(form => {
@@ -107,14 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sidebarToggle) {
     sidebarToggle.addEventListener('click', toggleSidebar);
   }
-
-  // Initialize tooltips
-  const tooltipTriggerList = [].slice.call(
-    document.querySelectorAll('[data-bs-toggle="tooltip"]')
-  );
-  tooltipTriggerList.map(tooltipTriggerEl => 
-    new bootstrap.Tooltip(tooltipTriggerEl)
-  );
 });
 
 // Export functions for global use
