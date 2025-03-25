@@ -1,714 +1,132 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org" 
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/layout}">
+      layout:decorate="~{layout/main}">
 <head>
-    <title>Vaccination Record - Vaccination Management System</title>
+    <title>Vaccination Record</title>
 </head>
 <body>
     <div layout:fragment="content">
-        <div class="container-fluid py-4">
-            <h1 class="h3 mb-4 text-gray-800">Record Vaccination</h1>
-            
-            <!-- Messages -->
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${successMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${errorMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            
-            <div class="row">
-                <div class="col-lg-8">
-                    <!-- Vaccination Form Card -->
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">Vaccination Entry Form</h6>
-                            <div class="dropdown no-arrow">
-                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                    aria-labelledby="dropdownMenuLink">
-                                    <div class="dropdown-header">Options:</div>
-                                    <a class="dropdown-item" href="#" id="clearFormBtn">Clear Form</a>
-                                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#templateModal">Load Template</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="/staff/vaccinations">View All Vaccinations</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <form th:action="@{/staff/vaccinations/record}" method="post" th:object="${vaccinationDTO}">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="childId" class="form-label">Child <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="childId" name="childId" th:field="*{childId}" required>
-                                            <option value="">-- Select Child --</option>
-                                            <option th:each="child : ${children}" 
-                                                    th:value="${child.id}" 
-                                                    th:text="${child.fullName + ' (' + #temporals.format(child.dateOfBirth, 'yyyy-MM-dd') + ')'}">
-                                                Child Name (DOB)
-                                            </option>
-                                        </select>
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('childId')}" th:errors="*{childId}"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="vaccineId" class="form-label">Vaccine <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="vaccineId" name="vaccineId" th:field="*{vaccineId}" required>
-                                            <option value="">-- Select Vaccine --</option>
-                                            <option th:each="vaccine : ${vaccines}" 
-                                                    th:value="${vaccine.id}" 
-                                                    th:text="${vaccine.name + ' (' + vaccine.manufacturer + ')'}">
-                                                Vaccine Name (Manufacturer)
-                                            </option>
-                                        </select>
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('vaccineId')}" th:errors="*{vaccineId}"></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="vaccinationDate" class="form-label">Vaccination Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" id="vaccinationDate" name="vaccinationDate" 
-                                               th:field="*{vaccinationDate}" required>
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('vaccinationDate')}" th:errors="*{vaccinationDate}"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="doseNumber" class="form-label">Dose Number</label>
-                                        <input type="number" class="form-control" id="doseNumber" name="doseNumber" 
-                                               th:field="*{doseNumber}" min="1">
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('doseNumber')}" th:errors="*{doseNumber}"></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="batchNumber" class="form-label">Batch Number</label>
-                                        <input type="text" class="form-control" id="batchNumber" name="batchNumber" 
-                                               th:field="*{batchNumber}">
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('batchNumber')}" th:errors="*{batchNumber}"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="administeredBy" class="form-label">Administered By</label>
-                                        <input type="text" class="form-control" id="administeredBy" name="administeredBy" 
-                                               th:field="*{administeredBy}" placeholder="Name of healthcare provider">
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('administeredBy')}" th:errors="*{administeredBy}"></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="administeredAt" class="form-label">Administered At</label>
-                                        <input type="text" class="form-control" id="administeredAt" name="administeredAt" 
-                                               th:field="*{administeredAt}" placeholder="Location/Facility">
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('administeredAt')}" th:errors="*{administeredAt}"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="nextDoseDue" class="form-label">Next Dose Due Date</label>
-                                        <input type="date" class="form-control" id="nextDoseDue" name="nextDoseDue" 
-                                               th:field="*{nextDoseDue}">
-                                        <div class="text-danger small" th:if="${#fields.hasErrors('nextDoseDue')}" th:errors="*{nextDoseDue}"></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="sideEffectsReported" class="form-label">Side Effects Reported</label>
-                                    <textarea class="form-control" id="sideEffectsReported" name="sideEffectsReported" 
-                                              th:field="*{sideEffectsReported}" rows="3" 
-                                              placeholder="Any immediate side effects observed or reported"></textarea>
-                                    <div class="text-danger small" th:if="${#fields.hasErrors('sideEffectsReported')}" th:errors="*{sideEffectsReported}"></div>
-                                </div>
-                                
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="appointmentCompleted" name="appointmentCompleted" checked>
-                                    <label class="form-check-label" for="appointmentCompleted">
-                                        Mark associated appointment as completed (if any)
-                                    </label>
-                                </div>
-                                
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="sendNotification" name="sendNotification" checked>
-                                    <label class="form-check-label" for="sendNotification">
-                                        Send notification to parent
-                                    </label>
-                                </div>
-                                
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-1"></i> Record Vaccination
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+        <div class="container mt-4">
+            <h2>Vaccination Record</h2>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Patient Information</h5>
                 </div>
-                
-                <div class="col-lg-4">
-                    <!-- Today's Appointments Card -->
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Today's Appointments</h6>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> <span th:text="${patient.fullName}"></span></p>
+                            <p><strong>Date of Birth:</strong> <span th:text="${#temporals.format(patient.dateOfBirth, 'dd/MM/yyyy')}"></span></p>
+                            <p><strong>Gender:</strong> <span th:text="${patient.gender}"></span></p>
                         </div>
-                        <div class="card-body">
-                            <div th:if="${!todayAppointments.isEmpty()}" class="today-appointments">
-                                <div th:each="appointment : ${todayAppointments}" 
-                                     th:if="${appointment.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED || appointment.status == T(com.vaccine.entity.Appointment.Status).SCHEDULED}"
-                                     class="appointment-item mb-3 p-2 rounded border" 
-                                     th:data-child-id="${appointment.child.id}"
-                                     th:data-service-id="${appointment.service.id}">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <div class="fw-bold" th:text="${appointment.child.fullName}">Child Name</div>
-                                        <span class="badge" 
-                                              th:classappend="${appointment.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED ? 'bg-info' : 'bg-primary'}" 
-                                              th:text="${appointment.status}">Status</span>
-                                    </div>
-                                    <div class="small text-muted mb-2">
-                                        <i class="fas fa-calendar-alt me-1"></i> 
-                                        <span th:text="${#temporals.format(appointment.appointmentDate, 'HH:mm')}">09:00</span> - 
-                                        <span th:text="${appointment.service.name}">Service Name</span>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary w-100 load-appointment" 
-                                            th:data-appointment-id="${appointment.id}">
-                                        <i class="fas fa-clipboard-list me-1"></i> Use This Appointment
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div th:if="${todayAppointments.isEmpty() || todayAppointments.stream().noneMatch(a -> a.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED || a.status == T(com.vaccine.entity.Appointment.Status).SCHEDULED)}" 
-                                 class="text-center py-3">
-                                <i class="fas fa-calendar-times fa-2x text-muted mb-3"></i>
-                                <p class="text-muted mb-0">No appointments scheduled for today</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Vaccine Information Card -->
-                    <div class="card shadow mb-4" id="vaccineInfoCard" style="display: none;">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Vaccine Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <h5 id="selectedVaccineName">Vaccine Name</h5>
-                            <p id="selectedVaccineDescription" class="mb-3">Vaccine description</p>
-                            
-                            <div class="mb-3">
-                                <strong>Manufacturer:</strong> <span id="selectedVaccineManufacturer">Manufacturer</span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <strong>Recommended Age:</strong> 
-                                <span id="selectedVaccineAgeRange">Age range</span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <strong>Doses Required:</strong> 
-                                <span id="selectedVaccineDoses">Number of doses</span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <strong>Days Between Doses:</strong> 
-                                <span id="selectedVaccineDaysBetween">Days between doses</span>
-                            </div>
-                            
-                            <div>
-                                <strong>Possible Side Effects:</strong>
-                                <p id="selectedVaccineSideEffects" class="mb-0">Side effects</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Child Information Card -->
-                    <div class="card shadow" id="childInfoCard" style="display: none;">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Child Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center mb-3">
-                                <img class="img-fluid rounded-circle mb-2" style="width: 100px; height: 100px;"
-                                    src="https://via.placeholder.com/100" alt="Child Profile">
-                                <h5 id="selectedChildName" class="mb-0">Child Name</h5>
-                                <p class="text-muted small" id="selectedChildAge">Age</p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <strong>Date of Birth:</strong> <span id="selectedChildDOB">DOB</span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <strong>Blood Type:</strong> <span id="selectedChildBloodType">Blood Type</span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <strong>Allergies:</strong> <span id="selectedChildAllergies">Allergies</span>
-                            </div>
-                            
-                            <div>
-                                <strong>Previous Vaccinations:</strong>
-                                <ul id="selectedChildVaccinations" class="mb-0 mt-1 ps-3">
-                                    <li>No previous vaccinations</li>
-                                </ul>
-                            </div>
+                        <div class="col-md-6">
+                            <p><strong>ID:</strong> <span th:text="${patient.id}"></span></p>
+                            <p><strong>Guardian:</strong> <span th:text="${patient.guardian}"></span></p>
+                            <p><strong>Contact:</strong> <span th:text="${patient.contact}"></span></p>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Vaccination Template Modal -->
-            <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="templateModalLabel">Load Vaccination Template</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="templateSelect" class="form-label">Select Template</label>
-                                <select class="form-select" id="templateSelect">
-                                    <option value="">-- Select Template --</option>
-                                    <option value="dtap">DTaP Vaccine</option>
-                                    <option value="mmr">MMR Vaccine</option>
-                                    <option value="polio">Polio Vaccine</option>
-                                    <option value="hepb">Hepatitis B Vaccine</option>
-                                    <option value="hib">Hib Vaccine</option>
-                                </select>
-                            </div>
-                            <div id="templateDetails" class="d-none">
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <h6 class="card-title" id="templateName">Vaccine Name</h6>
-                                        <p class="card-text small" id="templateDescription">Vaccine description</p>
-                                        <p class="mb-0 small">
-                                            <strong>Doses Required:</strong> <span id="templateDoses">0</span><br>
-                                            <strong>Days Between Doses:</strong> <span id="templateDaysBetween">0</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="loadTemplateBtn" disabled>Load Template</button>
-                        </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Vaccination History</h5>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVaccinationModal">
+                        Add Vaccination
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Vaccine</th>
+                                    <th>Dose</th>
+                                    <th>Batch No.</th>
+                                    <th>Given By</th>
+                                    <th>Next Due</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="record : ${vaccinationRecords}">
+                                    <td th:text="${#temporals.format(record.date, 'dd/MM/yyyy')}"></td>
+                                    <td th:text="${record.vaccine.name}"></td>
+                                    <td th:text="${record.doseNumber}"></td>
+                                    <td th:text="${record.batchNumber}"></td>
+                                    <td th:text="${record.administeredBy}"></td>
+                                    <td th:text="${record.nextDueDate != null ? #temporals.format(record.nextDueDate, 'dd/MM/yyyy') : '-'}"></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" th:onclick="'viewDetails(' + ${record.id} + ')'">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" th:onclick="'editRecord(' + ${record.id} + ')'">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div layout:fragment="scripts">
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Form elements
-                const childSelect = document.getElementById('childId');
-                const vaccineSelect = document.getElementById('vaccineId');
-                const vaccinationDateInput = document.getElementById('vaccinationDate');
-                const doseNumberInput = document.getElementById('doseNumber');
-                const batchNumberInput = document.getElementById('batchNumber');
-                const administeredByInput = document.getElementById('administeredBy');
-                const administeredAtInput = document.getElementById('administeredAt');
-                const nextDoseDueInput = document.getElementById('nextDoseDue');
-                const sideEffectsInput = document.getElementById('sideEffectsReported');
-                
-                // Info cards
-                const vaccineInfoCard = document.getElementById('vaccineInfoCard');
-                const childInfoCard = document.getElementById('childInfoCard');
-                
-                // Set today's date as default for vaccination date
-                vaccinationDateInput.valueAsDate = new Date();
-                
-                // Add event listener for child selection
-                childSelect.addEventListener('change', function() {
-                    if (childSelect.value) {
-                        fetchChildInfo(childSelect.value);
-                        childInfoCard.style.display = 'block';
-                    } else {
-                        childInfoCard.style.display = 'none';
-                    }
-                });
-                
-                // Add event listener for vaccine selection
-                vaccineSelect.addEventListener('change', function() {
-                    if (vaccineSelect.value) {
-                        fetchVaccineInfo(vaccineSelect.value);
-                        vaccineInfoCard.style.display = 'block';
-                        
-                        // Update dose number based on previous vaccinations for this child and vaccine
-                        if (childSelect.value) {
-                            fetchDoseNumber(childSelect.value, vaccineSelect.value);
-                        }
-                    } else {
-                        vaccineInfoCard.style.display = 'none';
-                    }
-                });
-                
-                // Use appointment buttons
-                document.querySelectorAll('.load-appointment').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const appointmentId = this.getAttribute('data-appointment-id');
-                        loadAppointmentData(appointmentId);
-                    });
-                });
-                
-                // Clear form button
-                document.getElementById('clearFormBtn').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    clearForm();
-                });
-                
-                // Template modal
-                const templateSelect = document.getElementById('templateSelect');
-                const templateDetails = document.getElementById('templateDetails');
-                const loadTemplateBtn = document.getElementById('loadTemplateBtn');
-                
-                templateSelect.addEventListener('change', function() {
-                    if (templateSelect.value) {
-                        // Display template details
-                        displayTemplateDetails(templateSelect.value);
-                        templateDetails.classList.remove('d-none');
-                        loadTemplateBtn.disabled = false;
-                    } else {
-                        templateDetails.classList.add('d-none');
-                        loadTemplateBtn.disabled = true;
-                    }
-                });
-                
-                loadTemplateBtn.addEventListener('click', function() {
-                    loadVaccineTemplate(templateSelect.value);
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('templateModal'));
-                    modal.hide();
-                });
-                
-                // Functions
-                function fetchChildInfo(childId) {
-                    // In a real application, this would fetch from the server
-                    // For now, we'll use dummy data
-                    
-                    // Simulate API call
-                    const childName = document.querySelector(`#childId option[value="${childId}"]`).textContent;
-                    
-                    // Extract DOB from the option text (format: "Child Name (YYYY-MM-DD)")
-                    const dobMatch = childName.match(/\((\d{4}-\d{2}-\d{2})\)/);
-                    const dob = dobMatch ? dobMatch[1] : "Unknown";
-                    
-                    // Calculate age
-                    let ageText = "Unknown";
-                    if (dob !== "Unknown") {
-                        const birthDate = new Date(dob);
-                        const today = new Date();
-                        const ageYears = today.getFullYear() - birthDate.getFullYear();
-                        const ageMonths = today.getMonth() - birthDate.getMonth();
-                        
-                        if (ageYears > 0) {
-                            ageText = `${ageYears} years`;
-                            if (ageMonths > 0) {
-                                ageText += ` ${ageMonths} months`;
-                            }
-                        } else {
-                            ageText = `${ageMonths} months`;
-                        }
-                    }
-                    
-                    // Update the child info card
-                    document.getElementById('selectedChildName').textContent = childName.split(' (')[0];
-                    document.getElementById('selectedChildDOB').textContent = dob;
-                    document.getElementById('selectedChildAge').textContent = ageText;
-                    document.getElementById('selectedChildBloodType').textContent = "Unknown";
-                    document.getElementById('selectedChildAllergies').textContent = "None reported";
-                    document.getElementById('selectedChildVaccinations').innerHTML = "<li>Loading vaccination history...</li>";
-                    
-                    // Fetch vaccination history
-                    setTimeout(() => {
-                        // Simulate API response
-                        const vaccinations = [
-                            { name: "DTaP", date: "2023-01-15", dose: 1 },
-                            { name: "Hepatitis B", date: "2023-02-20", dose: 1 },
-                            { name: "MMR", date: "2023-03-10", dose: 1 }
-                        ];
-                        
-                        if (vaccinations.length > 0) {
-                            let vaccinationsHtml = "";
-                            vaccinations.forEach(vax => {
-                                vaccinationsHtml += `<li>${vax.name} (Dose ${vax.dose}) - ${vax.date}</li>`;
-                            });
-                            document.getElementById('selectedChildVaccinations').innerHTML = vaccinationsHtml;
-                        } else {
-                            document.getElementById('selectedChildVaccinations').innerHTML = "<li>No previous vaccinations recorded</li>";
-                        }
-                    }, 500);
-                }
-                
-                function fetchVaccineInfo(vaccineId) {
-                    // In a real application, this would fetch from the server
-                    // For now, we'll use dummy data based on the vaccine templates
-                    
-                    // Get the vaccine name from the select option
-                    const vaccineName = document.querySelector(`#vaccineId option[value="${vaccineId}"]`).textContent;
-                    let vaccineInfo;
-                    
-                    // Match with our templates
-                    if (vaccineName.includes("DTaP")) {
-                        vaccineInfo = getVaccineTemplate("dtap");
-                    } else if (vaccineName.includes("MMR")) {
-                        vaccineInfo = getVaccineTemplate("mmr");
-                    } else if (vaccineName.includes("Polio")) {
-                        vaccineInfo = getVaccineTemplate("polio");
-                    } else if (vaccineName.includes("Hepatitis B")) {
-                        vaccineInfo = getVaccineTemplate("hepb");
-                    } else if (vaccineName.includes("Hib")) {
-                        vaccineInfo = getVaccineTemplate("hib");
-                    } else {
-                        // Default info
-                        vaccineInfo = {
-                            name: vaccineName,
-                            description: "No detailed information available for this vaccine.",
-                            manufacturer: "Unknown",
-                            minAge: "0 months",
-                            maxAge: "18 years",
-                            doses: 1,
-                            daysBetween: 0,
-                            sideEffects: "Common side effects may include pain at injection site, fever, and irritability."
-                        };
-                    }
-                    
-                    // Update the vaccine info card
-                    document.getElementById('selectedVaccineName').textContent = vaccineInfo.name;
-                    document.getElementById('selectedVaccineDescription').textContent = vaccineInfo.description;
-                    document.getElementById('selectedVaccineManufacturer').textContent = vaccineInfo.manufacturer;
-                    document.getElementById('selectedVaccineAgeRange').textContent = `${vaccineInfo.minAge} - ${vaccineInfo.maxAge}`;
-                    document.getElementById('selectedVaccineDoses').textContent = vaccineInfo.doses;
-                    document.getElementById('selectedVaccineDaysBetween').textContent = vaccineInfo.daysBetween;
-                    document.getElementById('selectedVaccineSideEffects').textContent = vaccineInfo.sideEffects;
-                    
-                    // Update dose number if it's not set yet
-                    if (!doseNumberInput.value) {
-                        doseNumberInput.value = "1";
-                    }
-                    
-                    // Calculate next dose due date if applicable
-                    if (vaccineInfo.doses > 1 && vaccineInfo.daysBetween > 0) {
-                        const vaccinationDate = new Date(vaccinationDateInput.value);
-                        const nextDoseDate = new Date(vaccinationDate);
-                        nextDoseDate.setDate(nextDoseDate.getDate() + vaccineInfo.daysBetween);
-                        
-                        // Format date as YYYY-MM-DD
-                        const year = nextDoseDate.getFullYear();
-                        const month = String(nextDoseDate.getMonth() + 1).padStart(2, '0');
-                        const day = String(nextDoseDate.getDate()).padStart(2, '0');
-                        nextDoseDueInput.value = `${year}-${month}-${day}`;
-                    } else {
-                        nextDoseDueInput.value = "";
-                    }
-                }
-                
-                function fetchDoseNumber(childId, vaccineId) {
-                    // In a real application, this would fetch from the server
-                    // For now, we'll use dummy data
-                    
-                    // Simulate API call
-                    setTimeout(() => {
-                        // Random dose number between 1 and 3
-                        const nextDose = Math.floor(Math.random() * 3) + 1;
-                        doseNumberInput.value = nextDose;
-                        
-                        // Update next dose due date if this isn't the last dose
-                        const vaccineInfo = getVaccineInfoFromSelect();
-                        if (vaccineInfo && vaccineInfo.doses > nextDose && vaccineInfo.daysBetween > 0) {
-                            const vaccinationDate = new Date(vaccinationDateInput.value);
-                            const nextDoseDate = new Date(vaccinationDate);
-                            nextDoseDate.setDate(nextDoseDate.getDate() + vaccineInfo.daysBetween);
-                            
-                            // Format date as YYYY-MM-DD
-                            const year = nextDoseDate.getFullYear();
-                            const month = String(nextDoseDate.getMonth() + 1).padStart(2, '0');
-                            const day = String(nextDoseDate.getDate()).padStart(2, '0');
-                            nextDoseDueInput.value = `${year}-${month}-${day}`;
-                        } else {
-                            nextDoseDueInput.value = "";
-                        }
-                    }, 300);
-                }
-                
-                function getVaccineInfoFromSelect() {
-                    const vaccineId = vaccineSelect.value;
-                    if (!vaccineId) return null;
-                    
-                    const vaccineName = document.querySelector(`#vaccineId option[value="${vaccineId}"]`).textContent;
-                    
-                    // Match with our templates
-                    if (vaccineName.includes("DTaP")) {
-                        return getVaccineTemplate("dtap");
-                    } else if (vaccineName.includes("MMR")) {
-                        return getVaccineTemplate("mmr");
-                    } else if (vaccineName.includes("Polio")) {
-                        return getVaccineTemplate("polio");
-                    } else if (vaccineName.includes("Hepatitis B")) {
-                        return getVaccineTemplate("hepb");
-                    } else if (vaccineName.includes("Hib")) {
-                        return getVaccineTemplate("hib");
-                    }
-                    
-                    return null;
-                }
-                
-                function loadAppointmentData(appointmentId) {
-                    // In a real application, this would fetch appointment data from the server
-                    // For now, we'll use the data attributes from the appointment button
-                    
-                    const appointmentElement = document.querySelector(`.load-appointment[data-appointment-id="${appointmentId}"]`);
-                    if (!appointmentElement) return;
-                    
-                    const childId = appointmentElement.closest('.appointment-item').getAttribute('data-child-id');
-                    const serviceId = appointmentElement.closest('.appointment-item').getAttribute('data-service-id');
-                    
-                    // Set the child
-                    childSelect.value = childId;
-                    childSelect.dispatchEvent(new Event('change'));
-                    
-                    // For the vaccine, we would need to determine which vaccine is associated with the service
-                    // For simplicity, let's just use the first vaccine in the list
-                    // In a real application, you would fetch this information from the server
-                    
-                    // Set some default values
-                    vaccinationDateInput.valueAsDate = new Date();
-                    administeredByInput.value = "Current Staff";
-                    administeredAtInput.value = "Main Clinic";
-                    
-                    // Show a success message
-                    alert("Appointment data loaded successfully. Please select a vaccine to continue.");
-                }
-                
-                function clearForm() {
-                    childSelect.value = "";
-                    vaccineSelect.value = "";
-                    vaccinationDateInput.valueAsDate = new Date();
-                    doseNumberInput.value = "";
-                    batchNumberInput.value = "";
-                    administeredByInput.value = "";
-                    administeredAtInput.value = "";
-                    nextDoseDueInput.value = "";
-                    sideEffectsInput.value = "";
-                    
-                    // Hide info cards
-                    vaccineInfoCard.style.display = 'none';
-                    childInfoCard.style.display = 'none';
-                }
-                
-                function displayTemplateDetails(templateId) {
-                    const template = getVaccineTemplate(templateId);
-                    
-                    document.getElementById('templateName').textContent = template.name;
-                    document.getElementById('templateDescription').textContent = template.description;
-                    document.getElementById('templateDoses').textContent = template.doses;
-                    document.getElementById('templateDaysBetween').textContent = template.daysBetween;
-                }
-                
-                function loadVaccineTemplate(templateId) {
-                    const template = getVaccineTemplate(templateId);
-                    
-                    // Find the matching vaccine in the select dropdown
-                    let vaccineOption = null;
-                    for (const option of vaccineSelect.options) {
-                        if (option.text.includes(template.name)) {
-                            vaccineOption = option;
-                            break;
-                        }
-                    }
-                    
-                    if (vaccineOption) {
-                        vaccineSelect.value = vaccineOption.value;
-                        vaccineSelect.dispatchEvent(new Event('change'));
-                    }
-                    
-                    // Set default values
-                    vaccinationDateInput.valueAsDate = new Date();
-                    doseNumberInput.value = "1";
-                    administeredByInput.value = "Current Staff";
-                    administeredAtInput.value = "Main Clinic";
-                    
-                    if (template.doses > 1 && template.daysBetween > 0) {
-                        const vaccinationDate = new Date(vaccinationDateInput.value);
-                        const nextDoseDate = new Date(vaccinationDate);
-                        nextDoseDate.setDate(nextDoseDate.getDate() + template.daysBetween);
-                        
-                        // Format date as YYYY-MM-DD
-                        const year = nextDoseDate.getFullYear();
-                        const month = String(nextDoseDate.getMonth() + 1).padStart(2, '0');
-                        const day = String(nextDoseDate.getDate()).padStart(2, '0');
-                        nextDoseDueInput.value = `${year}-${month}-${day}`;
-                    }
-                }
-                
-                function getVaccineTemplate(templateId) {
-                    const templates = {
-                        dtap: {
-                            name: "DTaP",
-                            description: "Protects against Diphtheria, Tetanus, and Pertussis (Whooping Cough).",
-                            manufacturer: "Sanofi Pasteur",
-                            minAge: "2 months",
-                            maxAge: "6 years",
-                            doses: 5,
-                            daysBetween: 60,
-                            sideEffects: "Pain/swelling at injection site, mild fever, fussiness, tiredness, poor appetite, vomiting."
-                        },
-                        mmr: {
-                            name: "MMR",
-                            description: "Protects against Measles, Mumps, and Rubella.",
-                            manufacturer: "Merck",
-                            minAge: "12 months",
-                            maxAge: "12 years",
-                            doses: 2,
-                            daysBetween: 1095, // ~3 years
-                            sideEffects: "Fever, mild rash, swelling of glands in cheeks or neck, temporary pain/stiffness in joints."
-                        },
-                        polio: {
-                            name: "Polio (IPV)",
-                            description: "Protects against Poliomyelitis, a disabling and life-threatening disease.",
-                            manufacturer: "Sanofi Pasteur",
-                            minAge: "2 months",
-                            maxAge: "18 years",
-                            doses: 4,
-                            daysBetween: 60,
-                            sideEffects: "Pain/redness at injection site, fatigue, mild fever."
-                        },
-                        hepb: {
-                            name: "Hepatitis B",
-                            description: "Protects against Hepatitis B virus infection.",
-                            manufacturer: "GlaxoSmithKline",
-                            minAge: "Birth",
-                            maxAge: "18 years",
-                            doses: 3,
-                            daysBetween: 30,
-                            sideEffects: "Pain/soreness at injection site, mild fever, headache, fatigue."
-                        },
-                        hib: {
-                            name: "Hib",
-                            description: "Protects against Haemophilus influenzae type b bacteria.",
-                            manufacturer: "Merck",
-                            minAge: "2 months",
-                            maxAge: "5 years",
-                            doses: 4,
-                            daysBetween: 60,
-                            sideEffects: "Pain/redness/swelling at injection site, fever, irritability."
-                        }
-                    };
-                    
-                    return templates[templateId] || {
-                        name: "Unknown",
-                        description: "No information available",
-                        manufacturer: "Unknown",
-                        minAge: "Unknown",
-                        maxAge: "Unknown",
-                        doses: 1,
-                        daysBetween: 0,
-                        sideEffects: "Unknown"
-                    };
-                }
-            });
+        <!-- Add Vaccination Modal -->
+        <div class="modal fade" id="addVaccinationModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Vaccination Record</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="vaccinationForm" th:action="@{/staff/vaccination/add}" method="post">
+                            <input type="hidden" name="patientId" th:value="${patient.id}"/>
+                            <div class="mb-3">
+                                <label class="form-label">Vaccine</label>
+                                <select class="form-select" name="vaccineId" required>
+                                    <option value="">Select Vaccine</option>
+                                    <option th:each="vaccine : ${vaccines}" 
+                                            th:value="${vaccine.id}" 
+                                            th:text="${vaccine.name}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" name="date" required/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Batch Number</label>
+                                <input type="text" class="form-control" name="batchNumber" required/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" name="notes" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" form="vaccinationForm" class="btn btn-primary">Save Record</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            function viewDetails(recordId) {
+                // Implementation for viewing details
+                console.log('View details for record:', recordId);
+            }
+
+            function editRecord(recordId) {
+                // Implementation for editing record
+                console.log('Edit record:', recordId);
+            }
         </script>
     </div>
 </body>

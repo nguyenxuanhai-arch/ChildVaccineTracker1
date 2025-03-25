@@ -89,7 +89,6 @@
     transition: width 0.4s ease-in-out;
 }
 
-
 .summary-section {
     opacity: 0;
     transform: translateY(10px);
@@ -99,4 +98,45 @@
 .summary-section.visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 0.6rem;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
+    border-color: #80bdff;
+}
+
+.btn-primary {
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.btn-primary i {
+    margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
 }

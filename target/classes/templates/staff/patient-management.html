@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Quản lý Bệnh nhân</title>
+    <link rel="stylesheet" th:href="@{/css/patient-management.css}">
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Quản lý Bệnh nhân</h2>
+                <div>
+                    <button class="btn btn-outline-primary me-2">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                        <i class="fas fa-user-plus"></i> Thêm Bệnh nhân
+                    </button>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="Tìm kiếm bệnh nhân...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mã BN</th>
+                                    <th>Họ và tên</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Giới tính</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Người giám hộ</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="patient : ${patients}">
+                                    <td th:text="${patient.code}">BN001</td>
+                                    <td th:text="${patient.fullName}">Nguyễn Văn A</td>
+                                    <td th:text="${#dates.format(patient.dateOfBirth, 'dd/MM/yyyy')}">01/01/2020</td>
+                                    <td th:text="${patient.gender}">Nam</td>
+                                    <td th:text="${patient.address}">Hà Nội</td>
+                                    <td th:text="${patient.phone}">0123456789</td>
+                                    <td th:text="${patient.guardian}">Nguyễn Văn B</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info me-2" th:data-id="${patient.id}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" th:data-id="${patient.id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
+    border-color: #80bdff;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
+    border-color: #80bdff;
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    border-radius: 8px;
+    padding: 8px 20px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+}

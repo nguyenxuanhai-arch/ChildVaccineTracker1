@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>Quản Lý Tiêm Chủng</title>
+</head>
+<body>
+    <main>
+        <div class="container mt-4">
+            <div class="jumbotron">
+                <h1 class="display-4">Hệ Thống Quản Lý Tiêm Chủng</h1>
+                <p class="lead">Chào mừng đến với hệ thống quản lý tiêm chủng trẻ em</p>
+                <hr class="my-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Lịch Hẹn</h5>
+                                <p class="card-text">Quản lý lịch hẹn tiêm chủng</p>
+                                <a href="/appointments" class="btn btn-primary">Xem Lịch Hẹn</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Trẻ Em</h5>
+                                <p class="card-text">Quản lý thông tin trẻ em</p>
+                                <a href="/children" class="btn btn-primary">Quản Lý Trẻ Em</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Vaccine</h5>
+                                <p class="card-text">Quản lý thông tin vaccine</p>
+                                <a href="/vaccines" class="btn btn-primary">Quản Lý Vaccine</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

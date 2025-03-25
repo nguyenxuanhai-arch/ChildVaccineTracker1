@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Quản lý Vaccine</title>
+    <link rel="stylesheet" th:href="@{/css/vaccine-management.css}">
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Quản lý Vaccine</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVaccineModal">
+                    <i class="fas fa-plus"></i> Thêm Vaccine
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Tên Vaccine</th>
+                                    <th>Nhà sản xuất</th>
+                                    <th>Số lô</th>
+                                    <th>Ngày sản xuất</th>
+                                    <th>Hạn sử dụng</th>
+                                    <th>Số lượng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="vaccine : ${vaccines}">
+                                    <td th:text="${vaccine.code}">VC001</td>
+                                    <td th:text="${vaccine.name}">Vaccine A</td>
+                                    <td th:text="${vaccine.manufacturer}">NSX A</td>
+                                    <td th:text="${vaccine.batchNumber}">L001</td>
+                                    <td th:text="${#dates.format(vaccine.manufactureDate, 'dd/MM/yyyy')}">01/01/2023</td>
+                                    <td th:text="${#dates.format(vaccine.expiryDate, 'dd/MM/yyyy')}">01/01/2024</td>
+                                    <td th:text="${vaccine.quantity}">100</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info me-2" th:data-id="${vaccine.id}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" th:data-id="${vaccine.id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Vaccine Modal -->
+        <div class="modal fade" id="addVaccineModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thêm Vaccine Mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addVaccineForm">
+                            <div class="mb-3">
+                                <label class="form-label">Mã Vaccine</label>
+                                <input type="text" class="form-control" name="code" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tên Vaccine</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nhà sản xuất</label>
+                                <input type="text" class="form-control" name="manufacturer" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Số lô</label>
+                                <input type="text" class="form-control" name="batchNumber" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ngày sản xuất</label>
+                                <input type="date" class="form-control" name="manufactureDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Hạn sử dụng</label>
+                                <input type="date" class="form-control" name="expiryDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Số lượng</label>
+                                <input type="number" class="form-control" name="quantity" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" form="addVaccineForm" class="btn btn-primary">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
