@@ -32,10 +32,11 @@ body {
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/hero-bg.jpg');
+  background: url('/images/hero-bg.svg');
   background-size: cover;
   background-position: center;
   padding: 100px 0;
+  color: #fff;
 }
 
 /* Cards */
@@ -192,6 +193,57 @@ body {
   color: #842029;
 }
 
+/* Icon Styles */
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1rem;
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--light);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  transition: all 0.3s;
+}
+
+.icon-container:hover {
+  background-color: var(--primary);
+}
+
+.icon-container:hover svg path {
+  fill: white;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {
@@ -213,5 +265,15 @@ body {
 
   .history-item::before {
     left: -24px;
+  }
+  
+  .icon-container {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .feature-icon {
+    width: 40px;
+    height: 40px;
   }
 }

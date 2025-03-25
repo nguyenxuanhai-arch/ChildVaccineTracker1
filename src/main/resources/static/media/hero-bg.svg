@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" fill="none">
+  <rect width="1200" height="600" fill="#2C7BE5"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M0 338.644L50 330.99C100 323.336 200 308.028 300 333.763C400 359.499 500 426.278 600 432.422C700 438.566 800 384.077 900 369.927C1000 355.776 1100 382.237 1150 395.468L1200 408.698V600H1150C1100 600 1000 600 900 600C800 600 700 600 600 600C500 600 400 600 300 600C200 600 100 600 50 600H0V338.644Z" fill="#2372DC" fill-opacity="0.5"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M0 401.219L50 409.044C100 416.868 200 432.517 300 421.854C400 411.191 500 374.216 600 369.927C700 365.637 800 394.032 900 407.506C1000 420.979 1100 419.532 1150 418.808L1200 418.085V600H1150C1100 600 1000 600 900 600C800 600 700 600 600 600C500 600 400 600 300 600C200 600 100 600 50 600H0V401.219Z" fill="#1E68D2" fill-opacity="0.5"/>
+  <!-- Circles pattern -->
+  <circle cx="100" cy="100" r="20" fill="white" fill-opacity="0.1"/>
+  <circle cx="300" cy="200" r="15" fill="white" fill-opacity="0.1"/>
+  <circle cx="500" cy="150" r="25" fill="white" fill-opacity="0.1"/>
+  <circle cx="700" cy="250" r="18" fill="white" fill-opacity="0.1"/>
+  <circle cx="900" cy="100" r="22" fill="white" fill-opacity="0.1"/>
+  <circle cx="1100" cy="200" r="30" fill="white" fill-opacity="0.1"/>
+  <circle cx="200" cy="300" r="25" fill="white" fill-opacity="0.1"/>
+  <circle cx="400" cy="250" r="20" fill="white" fill-opacity="0.1"/>
+  <circle cx="600" cy="350" r="15" fill="white" fill-opacity="0.1"/>
+  <circle cx="800" cy="300" r="28" fill="white" fill-opacity="0.1"/>
+  <circle cx="1000" cy="400" r="22" fill="white" fill-opacity="0.1"/>
+</svg>

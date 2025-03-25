@@ -8,44 +8,48 @@
 <body>
     <nav th:fragment="header" class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
         <!-- Sidebar Toggle (Topbar) -->
-        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3">
             <i class="fa fa-bars"></i>
         </button>
+        
+        <!-- Logo -->
+        <div class="d-none d-sm-inline-block me-auto">
+            <a class="navbar-brand" href="/" title="Trang chủ">
+                <img th:src="@{/images/logo.svg}" alt="Child Vaccine Tracker Logo" class="logo-img">
+                <span class="ms-2 fw-bold text-primary">VacciTrack</span>
+            </a>
+        </div>
 
         <!-- Topbar Search -->
-        <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+        <form class="d-none d-sm-inline-block form-inline ms-3 me-auto my-2 my-md-0 mw-100 navbar-search">
             <div class="input-group">
                 <input type="text" class="form-control bg-light border-0 small" placeholder="Tìm kiếm..."
                     aria-label="Search" aria-describedby="basic-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">
-                        <i class="fas fa-search fa-sm"></i>
-                    </button>
-                </div>
+                <button class="btn btn-primary" type="button">
+                    <i class="fas fa-search fa-sm"></i>
+                </button>
             </div>
         </form>
 
         <!-- Topbar Navbar -->
-        <ul class="navbar-nav ml-auto">
+        <ul class="navbar-nav ms-auto">
             <!-- Nav Item - Search Dropdown (Visible Only XS) -->
             <li class="nav-item dropdown no-arrow d-sm-none">
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-search fa-fw"></i>
                 </a>
                 <!-- Dropdown - Messages -->
-                <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                <div class="dropdown-menu dropdown-menu-end p-3 shadow animate-fade-in"
                     aria-labelledby="searchDropdown">
-                    <form class="form-inline mr-auto w-100 navbar-search">
+                    <form class="form-inline w-100 navbar-search">
                         <div class="input-group">
                             <input type="text" class="form-control bg-light border-0 small"
                                 placeholder="Tìm kiếm..." aria-label="Search"
                                 aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
+                            <button class="btn btn-primary" type="button">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -57,18 +61,18 @@
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-bell fa-fw"></i>
                     <!-- Counter - Notifications -->
-                    <span class="badge badge-danger badge-counter" id="notification-count">0</span>
+                    <span class="badge bg-danger rounded-pill" id="notification-count">0</span>
                 </a>
                 <!-- Dropdown - Notifications -->
-                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                <div class="dropdown-menu dropdown-menu-end shadow animate-fade-in"
                     aria-labelledby="alertsDropdown">
-                    <h6 class="dropdown-header">
+                    <h6 class="dropdown-header bg-primary text-white">
                         Trung tâm thông báo
                     </h6>
                     <div id="notification-items">
                         <!-- Notifications will be loaded here -->
                         <a class="dropdown-item d-flex align-items-center" href="#">
-                            <div class="mr-3">
+                            <div class="me-3">
                                 <div class="icon-circle bg-primary">
                                     <i class="fas fa-calendar-check text-white"></i>
                                 </div>
@@ -89,28 +93,28 @@
             <li class="nav-item dropdown no-arrow" sec:authorize="isAuthenticated()">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="mr-2 d-none d-lg-inline text-gray-600 small" sec:authentication="name">Username</span>
-                    <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+                    <span class="me-2 d-none d-lg-inline text-gray-600 small" sec:authentication="name">Username</span>
+                    <img class="img-profile rounded-circle" width="32" height="32" th:src="@{/images/child-icon.svg}">
                 </a>
                 <!-- Dropdown - User Information -->
-                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                <div class="dropdown-menu dropdown-menu-end shadow animate-fade-in"
                     aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="#" sec:authorize="hasRole('CUSTOMER')">
-                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
                         Hồ sơ cá nhân
                     </a>
                     <a class="dropdown-item" href="#" sec:authorize="hasRole('CUSTOMER')">
-                        <i class="fas fa-child fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <i class="fas fa-child fa-sm fa-fw me-2 text-gray-400"></i>
                         Con của tôi
                     </a>
                     <a class="dropdown-item" href="#" sec:authorize="hasRole('CUSTOMER')">
-                        <i class="fas fa-syringe fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <i class="fas fa-syringe fa-sm fa-fw me-2 text-gray-400"></i>
                         Tiêm chủng
                     </a>
                     <div class="dropdown-divider"></div>
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" class="dropdown-item">
-                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
                             Đăng xuất
                         </button>
                     </form>
@@ -119,14 +123,14 @@
 
             <!-- Login/Register Links for non-authenticated users -->
             <li class="nav-item" sec:authorize="!isAuthenticated()">
-                <a class="nav-link" th:href="@{/login}">
-                    <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                <a class="nav-link btn btn-sm btn-outline-primary mx-1" th:href="@{/login}">
+                    <i class="fas fa-sign-in-alt fa-sm fa-fw me-1"></i>
                     Đăng nhập
                 </a>
             </li>
             <li class="nav-item" sec:authorize="!isAuthenticated()">
-                <a class="nav-link" th:href="@{/register}">
-                    <i class="fas fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>
+                <a class="nav-link btn btn-sm btn-primary text-white mx-1" th:href="@{/register}">
+                    <i class="fas fa-user-plus fa-sm fa-fw me-1"></i>
                     Đăng ký
                 </a>
             </li>
@@ -162,14 +166,14 @@
                             
                             const notificationItem = `
                                 <a class="dropdown-item d-flex align-items-center" href="/customer/notifications">
-                                    <div class="mr-3">
+                                    <div class="me-3">
                                         <div class="icon-circle bg-primary">
                                             <i class="fas fa-${iconClass} text-white"></i>
                                         </div>
                                     </div>
                                     <div>
                                         <div class="small text-gray-500">${formattedDate}</div>
-                                        <span class="font-weight-bold">${notification.title}</span><br>
+                                        <span class="fw-bold">${notification.title}</span><br>
                                         <span>${notification.message.substring(0, 50)}${notification.message.length > 50 ? '...' : ''}</span>
                                     </div>
                                 </a>
@@ -181,7 +185,7 @@
                         notificationCount.textContent = '0';
                         notificationItems.innerHTML = `
                             <a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="mr-3">
+                                <div class="me-3">
                                     <div class="icon-circle bg-primary">
                                         <i class="fas fa-bell-slash text-white"></i>
                                     </div>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
+  <circle cx="100" cy="100" r="95" fill="#2C7BE5" opacity="0.1"/>
+  <circle cx="100" cy="100" r="70" fill="#2C7BE5" opacity="0.2"/>
+  <path d="M100 130C116.569 130 130 116.569 130 100C130 83.4315 116.569 70 100 70C83.4315 70 70 83.4315 70 100C70 116.569 83.4315 130 100 130Z" fill="#2C7BE5"/>
+  <path d="M85 85L115 115" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <path d="M115 85L85 115" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <path d="M100 40V55" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M100 145V160" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M40 100H55" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M145 100H160" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M58 58L68 68" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M132 132L142 142" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M58 142L68 132" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M132 68L142 58" stroke="#2C7BE5" stroke-width="8" stroke-linecap="round"/>
+</svg>

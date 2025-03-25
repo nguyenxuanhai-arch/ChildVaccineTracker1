@@ -6,9 +6,33 @@
 </head>
 <body>
     <footer th:fragment="footer" class="sticky-footer bg-white">
-        <div class="container my-auto">
-            <div class="copyright text-center my-auto">
-                <span>&copy; Vaccination Management System <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2023</span></span>
+        <div class="container my-auto py-3">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h5 class="text-primary fw-bold mb-3">VacciTrack</h5>
+                    <p class="text-muted small">Hệ thống quản lý tiêm chủng trẻ em hiện đại giúp theo dõi lịch tiêm và hồ sơ sức khỏe của trẻ một cách dễ dàng.</p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h5 class="text-primary fw-bold mb-3">Liên kết nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-decoration-none text-muted small">Trang chủ</a></li>
+                        <li><a href="/services" class="text-decoration-none text-muted small">Dịch vụ</a></li>
+                        <li><a href="/vaccine-guide" class="text-decoration-none text-muted small">Hướng dẫn vắc-xin</a></li>
+                        <li><a href="/about" class="text-decoration-none text-muted small">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-primary fw-bold mb-3">Liên hệ</h5>
+                    <ul class="list-unstyled text-muted small">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> 123 Đường Y tế, Quận Hà Đông</li>
+                        <li><i class="fas fa-phone me-2"></i> (024) 1234-5678</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@vaccitrack.com</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="copyright text-center">
+                <span>&copy; VacciTrack <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2023</span> - Mọi quyền được bảo lưu</span>
             </div>
         </div>
     </footer>
