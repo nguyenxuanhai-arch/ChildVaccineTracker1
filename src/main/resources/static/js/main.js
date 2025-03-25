@@ -209,7 +209,53 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sidebarToggle) {
     sidebarToggle.addEventListener('click', toggleSidebar);
   }
+
+    // Initialize all components
+    initializePatientRecords();
 });
+
+
+function initializePatientRecords() {
+    const patientCards = document.querySelectorAll('.patient-record');
+
+    patientCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (e.target.classList.contains('view-history-btn')) {
+                const patientId = this.dataset.patientId;
+                loadVaccinationHistory(patientId);
+            }
+        });
+    });
+}
+
+function loadVaccinationHistory(patientId) {
+    fetch(`/api/patients/${patientId}/vaccination-history`)
+        .then(response => response.json())
+        .then(data => {
+            updateHistoryDisplay(data);
+        })
+        .catch(error => {
+            console.error('Error loading vaccination history:', error);
+            showNotification('Error loading vaccination history', 'danger');
+        });
+}
+
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.setAttribute('role', 'alert');
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
 
 // Export functions for global use
 window.utils = utils;

@@ -124,6 +124,74 @@ body {
   padding: 1rem;
 }
 
+/* Patient Records */
+.patient-record {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.vaccination-history {
+  position: relative;
+  padding-left: 30px;
+  margin: 20px 0;
+}
+
+.vaccination-history::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: var(--primary);
+}
+
+.history-item {
+  position: relative;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.history-item::before {
+  content: '';
+  position: absolute;
+  left: -34px;
+  top: 20px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #fff;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-complete {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #664d03;
+}
+
+.status-overdue {
+  background: #f8d7da;
+  color: #842029;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {
@@ -133,5 +201,17 @@ body {
   
   .hero-section {
     padding: 50px 0;
+  }
+
+  .patient-record {
+    padding: 15px;
+  }
+
+  .vaccination-history {
+    padding-left: 20px;
+  }
+
+  .history-item::before {
+    left: -24px;
   }
 }
