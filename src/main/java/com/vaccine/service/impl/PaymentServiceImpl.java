@@ -19,14 +19,32 @@ import java.util.Optional;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
+    @Override
+    @Transactional
+    public Payment createPayment(Appointment appointment, BigDecimal amount, Payment.PaymentMethod paymentMethod) {
+        Payment payment = new Payment();
+        payment.setAmount(amount);
+        payment.setPaymentMethod(paymentMethod);
+        payment.setStatus(Payment.PaymentStatus.PENDING);
+        payment.setCreatedAt(LocalDateTime.now());
+        payment.setAppointment(appointment);
+
+        return paymentRepository.save(payment);
+    }
+
     @Autowired
     private PaymentRepository paymentRepository;
 
     @Autowired
     private AppointmentRepository appointmentRepository;
-    
+
     @Autowired
     private NotificationService notificationService;
+
+    @Override
+    public List<Payment> findByStatus(Payment.PaymentStatus status) {
+        return paymentRepository.findByStatus(status);
+    }
 
     @Override
     @Transactional
@@ -50,8 +68,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<Payment> findByAppointmentId(Long appointmentId) {
-        return paymentRepository.findByAppointmentId(appointmentId);
+    public Optional<Payment> findByAppointmentId(Long appointmentId) {
+        return paymentRepository.findByAppointmentId(appointmentId).stream().findFirst();
     }
 
     @Override
@@ -68,16 +86,6 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(status);
         payment.setUpdatedAt(LocalDateTime.now());
 
-        return paymentRepository.save(payment);
-    }
-    
-    @Override
-    @Transactional
-    public Payment updatePaymentStatus(Long paymentId, Payment.PaymentStatus status) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + paymentId));
-        payment.setStatus(status);
-        payment.setUpdatedAt(LocalDateTime.now());
         return paymentRepository.save(payment);
     }
 
@@ -101,8 +109,8 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
         Payment completedPayment = paymentRepository.save(payment);
         String title = "Payment Received";
-        String message = "Your payment of " + payment.getAmount() + " for appointment on " + 
-                         payment.getAppointment().getAppointmentDate().toLocalDate() + 
+        String message = "Your payment of " + payment.getAmount() + " for appointment on " +
+                         payment.getAppointment().getAppointmentDate().toLocalDate() +
                          " has been processed successfully.";
         notificationService.createNotification(
             payment.getAppointment().getChild().getParent(),
@@ -125,8 +133,8 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
         Payment refundedPayment = paymentRepository.save(payment);
         String title = "Payment Refunded";
-        String message = "Your payment of " + payment.getAmount() + " for appointment on " + 
-                         payment.getAppointment().getAppointmentDate().toLocalDate() + 
+        String message = "Your payment of " + payment.getAmount() + " for appointment on " +
+                         payment.getAppointment().getAppointmentDate().toLocalDate() +
                          " has been refunded.";
         notificationService.createNotification(
             payment.getAppointment().getChild().getParent(),

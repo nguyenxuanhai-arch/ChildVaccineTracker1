@@ -11,6 +11,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -25,7 +27,9 @@ public class JwtTokenProvider {
     private String jwtSecret;
 
     @Value("${app.jwt.expiration}")
-    private int jwtExpirationInMs;
+    private Long jwtExpirationInMs;
+
+    Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     // Generate the key for signing token
     private Key getSigningKey() {

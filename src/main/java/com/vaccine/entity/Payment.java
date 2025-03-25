@@ -70,4 +70,8 @@ public class Payment {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public void setPaymentMethod(PaymentMethod method) {
+        this.method = method;
+    }
 }

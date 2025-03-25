@@ -1,5 +1,6 @@
 package com.vaccine.service;
 
+import com.vaccine.dto.PaymentDTO;
 import com.vaccine.entity.Appointment;
 import com.vaccine.entity.Payment;
 
@@ -27,6 +28,10 @@ public interface PaymentService {
     Payment refundPayment(Long paymentId);
     
     BigDecimal calculateRevenueForPeriod(LocalDateTime startDate, LocalDateTime endDate);
+
+    Payment createPayment(PaymentDTO paymentDTO);
+
+    void deletePayment(Long id);
     
     int countPaymentsByStatusForPeriod(Payment.PaymentStatus status, LocalDateTime startDate, LocalDateTime endDate);
 }
