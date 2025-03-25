@@ -48,6 +48,28 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     @Transactional
+    public void deleteFeedback(Long id) {
+        feedbackRepository.deleteById(id);
+    }
+
+    @Override
+    public double calculateAverageRating() {
+        return feedbackRepository.findAll().stream()
+            .mapToInt(Feedback::getRating)
+            .average()
+            .orElse(0.0);
+    }
+
+    @Override
+    public long countHighRatings(int minRating) {
+        return feedbackRepository.findAll().stream()
+            .filter(f -> f.getRating() >= minRating)
+            .count();
+    }
+}
+
+    @Override
+    @Transactional
     public Feedback updateFeedback(Long id, FeedbackDTO feedbackDTO, User user) {
         Feedback feedback = feedbackRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Feedback not found with id: " + id));

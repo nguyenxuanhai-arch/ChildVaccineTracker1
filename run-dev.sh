@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Script để chạy ứng dụng Spring Boot trong môi trường phát triển
