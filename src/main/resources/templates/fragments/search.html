@@ -1,0 +1,13 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <form th:fragment="search" class="d-flex" method="get" th:action="${searchAction}">
+        <input class="form-control me-2" type="search" placeholder="Tìm kiếm..." 
+               th:name="q" th:value="${param.q}" aria-label="Search">
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</body>
+</html>
