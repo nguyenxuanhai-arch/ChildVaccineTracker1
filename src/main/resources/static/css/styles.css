@@ -1,8 +1,15 @@
 
 /* Variables */
 :root {
-  --primary: #0d6efd;
-  --secondary: #6c757d;
+  --primary: #2C7BE5;
+  --secondary: #6E84A3;
+  --success: #00B8D9;
+  --info: #2684FF;
+  --warning: #FFAB00;
+  --danger: #FF5630;
+  --light: #F7FAFC;
+  --dark: #283E59;
+  --border-color: #E6E8F0;
   --success: #198754;
   --info: #0dcaf0;
   --warning: #ffc107;

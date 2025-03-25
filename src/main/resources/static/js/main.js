@@ -62,6 +62,19 @@ const toggleSidebar = () => {
 };
 
 // Data Table Initialization
+// Utilities
+const formatDate = (date) => {
+  return new Intl.DateTimeFormat('vi-VN').format(new Date(date));
+};
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND'
+  }).format(amount);
+};
+
+// DataTable initialization
 const initDataTable = (tableId, options = {}) => {
   const table = document.getElementById(tableId);
   if (!table) return;
