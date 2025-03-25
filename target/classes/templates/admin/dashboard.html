@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Admin Dashboard - Vaccination Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4">Admin Dashboard</h1>
+            
+            <div class="row">
+                <!-- Stats Cards -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Daily Revenue</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${'$' + #numbers.formatDecimal(dailyRevenue, 0, 'COMMA', 2, 'POINT')}">$0.00</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Monthly Revenue</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${'$' + #numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 2, 'POINT')}">$0.00</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Pending Appointments</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${pendingAppointments}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Total Users</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalUsers}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Revenue Chart -->
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Revenue Overview (Last 6 Months)</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointment Status Chart -->
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Payment Methods</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie">
+                                <canvas id="paymentMethodsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Today's Appointments -->
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Today's Appointments</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="todayAppointmentsTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Child</th>
+                                            <th>Service</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="appointment : ${todayAppointments}">
+                                            <td th:text="${#temporals.format(appointment.appointmentDate, 'HH:mm')}">09:00</td>
+                                            <td th:text="${appointment.child.fullName}">John Doe</td>
+                                            <td th:text="${appointment.service.name}">Regular Checkup</td>
+                                            <td>
+                                                <span class="badge" 
+                                                      th:classappend="${
+                                                        appointment.status == T(com.vaccine.entity.Appointment.Status).COMPLETED ? 'bg-success' : 
+                                                        appointment.status == T(com.vaccine.entity.Appointment.Status).SCHEDULED ? 'bg-primary' : 
+                                                        appointment.status == T(com.vaccine.entity.Appointment.Status).CONFIRMED ? 'bg-info' : 
+                                                        appointment.status == T(com.vaccine.entity.Appointment.Status).CANCELLED ? 'bg-danger' : 'bg-warning'
+                                                      }"
+                                                      th:text="${appointment.status}">SCHEDULED</span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{'/staff/appointments/' + ${appointment.id}}" class="btn btn-sm btn-info">View</a>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${todayAppointments.empty}">
+                                            <td colspan="5" class="text-center">No appointments for today</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback & Ratings -->
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Feedback & Ratings</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <h1 class="display-4" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">4.5</h1>
+                                <div class="mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star-half-alt text-warning" th:if="${averageRating % 1 >= 0.5}"></i>
+                                    <i class="far fa-star text-warning" th:if="${averageRating % 1 < 0.5}"></i>
+                                </div>
+                                <p class="text-muted">Average rating based on all feedback</p>
+                            </div>
+                            <hr/>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>High Ratings (4-5 stars)</span>
+                                <span class="badge bg-success" th:text="${highRatings}">75</span>
+                            </div>
+                            <a href="/admin/feedbacks" class="btn btn-primary btn-block">View All Feedback</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script th:src="@{/js/chart-init.js}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Fetch data and initialize charts
+                fetch('/api/admin/dashboard/revenue-chart')
+                    .then(response => response.json())
+                    .then(data => {
+                        initRevenueChart(data.labels, data.revenueData);
+                    });
+
+                fetch('/api/admin/dashboard/payment-chart')
+                    .then(response => response.json())
+                    .then(data => {
+                        initPaymentMethodsChart(data.labels, data.data);
+                    });
+            });
+        </script>
+    </div>
+</body>
+</html>

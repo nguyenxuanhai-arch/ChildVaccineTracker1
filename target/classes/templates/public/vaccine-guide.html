@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Vaccine Guide - Vaccination Management System</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">Vaccine Guide for Parents</h1>
+            
+            <!-- Vaccine Guide Introduction -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Understanding Childhood Vaccinations</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p>Vaccines are one of the most effective ways to protect your child against serious diseases. They work by stimulating the immune system to recognize and fight specific pathogens, without actually causing the disease.</p>
+                            <p>This guide provides information about the recommended vaccines for children, their schedules, and why they are important for your child's health and the health of the community.</p>
+                            <p>The vaccination schedule is carefully designed to provide protection when children are most vulnerable to diseases. Following the recommended schedule is the best way to protect your child.</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-shield-virus fa-6x text-primary mb-3"></i>
+                            <p class="font-weight-bold">Vaccines provide safe, effective protection against harmful diseases</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommended Vaccines by Age -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recommended Vaccines by Age</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="ageTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="birth-tab" data-bs-toggle="tab" data-bs-target="#birth" type="button" role="tab" aria-controls="birth" aria-selected="true">Birth - 2 Months</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="2-6-tab" data-bs-toggle="tab" data-bs-target="#months2-6" type="button" role="tab" aria-controls="months2-6" aria-selected="false">2-6 Months</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="6-12-tab" data-bs-toggle="tab" data-bs-target="#months6-12" type="button" role="tab" aria-controls="months6-12" aria-selected="false">6-12 Months</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="12-24-tab" data-bs-toggle="tab" data-bs-target="#months12-24" type="button" role="tab" aria-controls="months12-24" aria-selected="false">12-24 Months</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="2-6-years-tab" data-bs-toggle="tab" data-bs-target="#years2-6" type="button" role="tab" aria-controls="years2-6" aria-selected="false">2-6 Years</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="7-18-years-tab" data-bs-toggle="tab" data-bs-target="#years7-18" type="button" role="tab" aria-controls="years7-18" aria-selected="false">7-18 Years</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="ageTabContent">
+                        <div class="tab-pane fade show active" id="birth" role="tabpanel" aria-labelledby="birth-tab">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Vaccine</th>
+                                            <th>Protects Against</th>
+                                            <th>Doses</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Hepatitis B (HepB)</td>
+                                            <td>Hepatitis B virus infection</td>
+                                            <td>1st dose</td>
+                                            <td>Given within 24 hours of birth</td>
+                                        </tr>
+                                        <tr>
+                                            <td>BCG</td>
+                                            <td>Tuberculosis</td>
+                                            <td>Single dose</td>
+                                            <td>Given at birth in many countries</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="months2-6" role="tabpanel" aria-labelledby="2-6-tab">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Vaccine</th>
+                                            <th>Protects Against</th>
+                                            <th>Doses</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>DTaP</td>
+                                            <td>Diphtheria, Tetanus, Pertussis</td>
+                                            <td>1st & 2nd doses</td>
+                                            <td>Given at 2 and 4 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>IPV</td>
+                                            <td>Polio</td>
+                                            <td>1st & 2nd doses</td>
+                                            <td>Given at 2 and 4 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hib</td>
+                                            <td>Haemophilus influenzae type b</td>
+                                            <td>1st & 2nd doses</td>
+                                            <td>Given at 2 and 4 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PCV13</td>
+                                            <td>Pneumococcal disease</td>
+                                            <td>1st & 2nd doses</td>
+                                            <td>Given at 2 and 4 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rotavirus</td>
+                                            <td>Rotavirus gastroenteritis</td>
+                                            <td>1st & 2nd doses</td>
+                                            <td>Given at 2 and 4 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hepatitis B</td>
+                                            <td>Hepatitis B virus infection</td>
+                                            <td>2nd dose</td>
+                                            <td>Given at 1-2 months</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="months6-12" role="tabpanel" aria-labelledby="6-12-tab">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Vaccine</th>
+                                            <th>Protects Against</th>
+                                            <th>Doses</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>DTaP</td>
+                                            <td>Diphtheria, Tetanus, Pertussis</td>
+                                            <td>3rd dose</td>
+                                            <td>Given at 6 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>IPV</td>
+                                            <td>Polio</td>
+                                            <td>3rd dose</td>
+                                            <td>Given at 6 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hib</td>
+                                            <td>Haemophilus influenzae type b</td>
+                                            <td>3rd dose</td>
+                                            <td>Given at 6 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PCV13</td>
+                                            <td>Pneumococcal disease</td>
+                                            <td>3rd dose</td>
+                                            <td>Given at 6 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rotavirus</td>
+                                            <td>Rotavirus gastroenteritis</td>
+                                            <td>3rd dose</td>
+                                            <td>Given at 6 months (for some vaccines)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hepatitis B</td>
+                                            <td>Hepatitis B virus infection</td>
+                                            <td>3rd dose</td>
+                                            <td>Given at 6-18 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Influenza</td>
+                                            <td>Seasonal flu</td>
+                                            <td>Yearly</td>
+                                            <td>Recommended annually for children 6 months and older</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional tabs content for other age groups would be similar -->
+                        <div class="tab-pane fade" id="months12-24" role="tabpanel" aria-labelledby="12-24-tab">
+                            <!-- Content for 12-24 months -->
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Vaccine</th>
+                                            <th>Protects Against</th>
+                                            <th>Doses</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>MMR</td>
+                                            <td>Measles, Mumps, Rubella</td>
+                                            <td>1st dose</td>
+                                            <td>Given at 12-15 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Varicella</td>
+                                            <td>Chickenpox</td>
+                                            <td>1st dose</td>
+                                            <td>Given at 12-15 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PCV13</td>
+                                            <td>Pneumococcal disease</td>
+                                            <td>4th dose</td>
+                                            <td>Given at 12-15 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hib</td>
+                                            <td>Haemophilus influenzae type b</td>
+                                            <td>4th dose</td>
+                                            <td>Given at 12-15 months</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hepatitis A</td>
+                                            <td>Hepatitis A virus infection</td>
+                                            <td>1st dose</td>
+                                            <td>Given at 12-23 months</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="years2-6" role="tabpanel" aria-labelledby="2-6-years-tab">
+                            <!-- Content for 2-6 years -->
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Vaccine</th>
+                                            <th>Protects Against</th>
+                                            <th>Doses</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>DTaP</td>
+                                            <td>Diphtheria, Tetanus, Pertussis</td>
+                                            <td>4th & 5th doses</td>
+                                            <td>4th dose at 15-18 months, 5th dose at 4-6 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>IPV</td>
+                                            <td>Polio</td>
+                                            <td>4th dose</td>
+                                            <td>Given at 4-6 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>MMR</td>
+                                            <td>Measles, Mumps, Rubella</td>
+                                            <td>2nd dose</td>
+                                            <td>Given at 4-6 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Varicella</td>
+                                            <td>Chickenpox</td>
+                                            <td>2nd dose</td>
+                                            <td>Given at 4-6 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hepatitis A</td>
+                                            <td>Hepatitis A virus infection</td>
+                                            <td>2nd dose</td>
+                                            <td>Given 6-18 months after the 1st dose</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Influenza</td>
+                                            <td>Seasonal flu</td>
+                                            <td>Yearly</td>
+                                            <td>Recommended annually</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="years7-18" role="tabpanel" aria-labelledby="7-18-years-tab">
+                            <!-- Content for 7-18 years -->
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Vaccine</th>
+                                            <th>Protects Against</th>
+                                            <th>Doses</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Tdap</td>
+                                            <td>Tetanus, Diphtheria, Pertussis</td>
+                                            <td>1 dose</td>
+                                            <td>Given at 11-12 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>HPV</td>
+                                            <td>Human Papillomavirus</td>
+                                            <td>2-3 doses</td>
+                                            <td>Starting at 11-12 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>MenACWY</td>
+                                            <td>Meningococcal disease (serogroups A,C,W,Y)</td>
+                                            <td>2 doses</td>
+                                            <td>First dose at 11-12 years, booster at 16 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>MenB</td>
+                                            <td>Meningococcal disease (serogroup B)</td>
+                                            <td>2-3 doses</td>
+                                            <td>May be given at 16-23 years</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Influenza</td>
+                                            <td>Seasonal flu</td>
+                                            <td>Yearly</td>
+                                            <td>Recommended annually</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vaccine Safety Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Vaccine Safety</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>Understanding Vaccine Safety</h5>
+                            <p>Vaccines are held to the highest safety standards. Before a vaccine is approved for use:</p>
+                            <ul>
+                                <li>It goes through years of research</li>
+                                <li>It must pass rigorous clinical trials</li>
+                                <li>It is evaluated by multiple regulatory agencies</li>
+                                <li>Its safety continues to be monitored after approval</li>
+                            </ul>
+                            
+                            <h5 class="mt-4">Common Misconceptions</h5>
+                            <div class="accordion" id="misconceptionsAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingOne">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                            Do vaccines cause autism?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#misconceptionsAccordion">
+                                        <div class="accordion-body">
+                                            <strong>No, vaccines do not cause autism.</strong> Multiple large studies have found no link between vaccines and autism. The original study that suggested this link has been retracted due to serious procedural and ethical flaws.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingTwo">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                            Are vaccine ingredients dangerous?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#misconceptionsAccordion">
+                                        <div class="accordion-body">
+                                            <strong>Vaccine ingredients are safe in the amounts used.</strong> While some ingredients might be harmful in large doses, the tiny amounts in vaccines are safe. Each ingredient serves a specific purpose, such as providing immunity, keeping the vaccine safe and effective, or preventing contamination.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingThree">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                            Is it better to develop immunity through disease than vaccines?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#misconceptionsAccordion">
+                                        <div class="accordion-body">
+                                            <strong>No, vaccines provide immunity without the risks of the disease.</strong> Vaccine-preventable diseases can be serious or even deadly. Getting vaccinated is a safer way to develop immunity than getting the disease.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Side Effects</h5>
+                                    <p class="card-text">Most vaccine side effects are minor and temporary. Common side effects include:</p>
+                                    <ul>
+                                        <li>Soreness at the injection site</li>
+                                        <li>Low-grade fever</li>
+                                        <li>Fussiness or irritability</li>
+                                        <li>Fatigue or drowsiness</li>
+                                    </ul>
+                                    <p class="card-text">Serious adverse reactions are extremely rare. If you notice severe symptoms after vaccination, contact your healthcare provider immediately.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resources Section -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Additional Resources</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Reliable Information Sources</h5>
+                            <ul>
+                                <li><a href="https://www.cdc.gov/vaccines/" target="_blank">Centers for Disease Control and Prevention (CDC)</a></li>
+                                <li><a href="https://www.who.int/health-topics/vaccines-and-immunization" target="_blank">World Health Organization (WHO)</a></li>
+                                <li><a href="https://www.immunize.org/" target="_blank">Immunization Action Coalition</a></li>
+                                <li><a href="https://www.aap.org/en-us/advocacy-and-policy/aap-health-initiatives/immunizations/Pages/Immunizations-home.aspx" target="_blank">American Academy of Pediatrics</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Tools for Parents</h5>
+                            <ul>
+                                <li><a href="https://www.cdc.gov/vaccines/schedules/easy-to-read/child-easyread.html" target="_blank">Easy-to-read Vaccination Schedules</a></li>
+                                <li><a href="https://www.cdc.gov/vaccines/parents/index.html" target="_blank">CDC's Vaccines for Your Children</a></li>
+                                <li><a href="https://www.cdc.gov/vaccines/vac-gen/common-faqs.htm" target="_blank">Frequently Asked Questions about Vaccines</a></li>
+                                <li><a href="https://www.immunize.org/catg.d/p4012.pdf" target="_blank">Printable Vaccination Records</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="text-center my-5">
+                <h4>Ready to schedule your child's vaccination?</h4>
+                <p class="lead">Register with our vaccination center to get started.</p>
+                <a href="/register" class="btn btn-primary btn-lg">Register Now</a>
+                <a href="/services" class="btn btn-outline-primary btn-lg ms-2">View Our Services</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

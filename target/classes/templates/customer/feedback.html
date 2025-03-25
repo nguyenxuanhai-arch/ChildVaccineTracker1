@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Feedback - Vaccination Management System</title>
+    <style>
+        .star-rating {
+            direction: rtl;
+            display: inline-block;
+            padding: 0;
+        }
+        
+        .star-rating input[type=radio] {
+            display: none;
+        }
+        
+        .star-rating label {
+            color: #bbb;
+            font-size: 1.5rem;
+            padding: 0;
+            cursor: pointer;
+            width: 1.5em;
+        }
+        
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input[type=radio]:checked ~ label {
+            color: #f8ce0b;
+        }
+        
+        .feedback-card {
+            transition: transform 0.3s;
+        }
+        
+        .feedback-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">Feedback & Ratings</h1>
+            
+            <!-- Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            <div class="row">
+                <!-- Feedback Form Card -->
+                <div class="col-xl-6 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Share Your Experience</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/customer/feedback}" method="post" th:object="${feedbackDTO}">
+                                <input type="hidden" th:field="*{id}" />
+                                
+                                <div class="mb-4 text-center">
+                                    <label class="form-label d-block">How would you rate our services?</label>
+                                    <div class="star-rating">
+                                        <input type="radio" id="star5" name="rating" value="5" th:field="*{rating}" />
+                                        <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                                        
+                                        <input type="radio" id="star4" name="rating" value="4" th:field="*{rating}" />
+                                        <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                                        
+                                        <input type="radio" id="star3" name="rating" value="3" th:field="*{rating}" />
+                                        <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                                        
+                                        <input type="radio" id="star2" name="rating" value="2" th:field="*{rating}" />
+                                        <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                                        
+                                        <input type="radio" id="star1" name="rating" value="1" th:field="*{rating}" />
+                                        <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                                    </div>
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="comment" class="form-label">Your Comments</label>
+                                    <textarea class="form-control" id="comment" rows="5" th:field="*{comment}" 
+                                              placeholder="Please share your experience with our vaccination services..."></textarea>
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></div>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="fas fa-paper-plane me-1"></i> Submit Feedback
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Feedback Guidelines Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Feedback Guidelines</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6><i class="fas fa-check-circle text-success me-2"></i>Why Your Feedback Matters</h6>
+                                <p class="small text-muted">Your feedback helps us improve our services and ensure we provide the best care for your child. We value your honest opinions and suggestions.</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6><i class="fas fa-lightbulb text-warning me-2"></i>Tips for Helpful Feedback</h6>
+                                <ul class="small text-muted">
+                                    <li>Be specific about your experience</li>
+                                    <li>Mention both positive aspects and areas for improvement</li>
+                                    <li>Suggest practical ideas for enhancement</li>
+                                    <li>Keep it constructive and respectful</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h6><i class="fas fa-shield-alt text-info me-2"></i>Privacy Note</h6>
+                                <p class="small text-muted">Your feedback may be shared with our staff for training purposes, but your personal information will remain confidential.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Your Feedback History -->
+                <div class="col-xl-6 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Your Previous Feedback</h6>
+                            <div class="dropdown no-arrow">
+                                <a class="dropdown-toggle" href="#" role="button" id="feedbackDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="feedbackDropdown">
+                                    <a class="dropdown-item" href="#" id="sortNewest">
+                                        <i class="fas fa-sort-amount-down fa-sm fa-fw me-2 text-gray-400"></i>Newest First
+                                    </a>
+                                    <a class="dropdown-item" href="#" id="sortOldest">
+                                        <i class="fas fa-sort-amount-up fa-sm fa-fw me-2 text-gray-400"></i>Oldest First
+                                    </a>
+                                    <a class="dropdown-item" href="#" id="sortHighest">
+                                        <i class="fas fa-star fa-sm fa-fw me-2 text-gray-400"></i>Highest Rating
+                                    </a>
+                                    <a class="dropdown-item" href="#" id="sortLowest">
+                                        <i class="fas fa-star-half-alt fa-sm fa-fw me-2 text-gray-400"></i>Lowest Rating
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="feedbackList">
+                                <div th:if="${!feedbacks.isEmpty()}" class="feedback-list">
+                                    <div th:each="feedback : ${feedbacks}" class="card mb-3 feedback-card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div>
+                                                    <span th:each="i : ${#numbers.sequence(1, 5)}" class="me-1">
+                                                        <i class="fas fa-star" th:classappend="${i <= feedback.rating ? 'text-warning' : 'text-muted'}"></i>
+                                                    </span>
+                                                    <span class="badge bg-primary ms-2" th:text="${feedback.rating + '/5'}">5/5</span>
+                                                </div>
+                                                <div class="small text-muted" th:text="${#temporals.format(feedback.createdAt, 'MMM d, yyyy')}">Jan 1, 2023</div>
+                                            </div>
+                                            
+                                            <p class="mb-3" th:text="${feedback.comment}">Feedback comment text</p>
+                                            
+                                            <div class="d-flex justify-content-end">
+                                                <a th:href="@{'/customer/feedback/' + ${feedback.id} + '/edit'}" class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-edit fa-sm"></i> Edit
+                                                </a>
+                                                <form th:action="@{'/customer/feedback/' + ${feedback.id} + '/delete'}" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this feedback?')">
+                                                        <i class="fas fa-trash fa-sm"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div th:if="${feedbacks.isEmpty()}" class="text-center py-5">
+                                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                    <h5>No Feedback Yet</h5>
+                                    <p class="text-muted">You haven't submitted any feedback yet. We'd love to hear about your experience!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonials Card -->
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">What Others Are Saying</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <div class="testimonial text-center p-4">
+                                            <div class="mb-3">
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                            </div>
+                                            <p class="mb-3">"The staff was incredibly patient with my nervous child. They explained everything clearly and made the vaccination process completely stress-free. Highly recommend!"</p>
+                                            <p class="font-weight-bold mb-0">- Sarah M.</p>
+                                        </div>
+                                    </div>
+                                    <div class="carousel-item">
+                                        <div class="testimonial text-center p-4">
+                                            <div class="mb-3">
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star-half-alt text-warning"></i></span>
+                                            </div>
+                                            <p class="mb-3">"Very organized system! The appointment reminders are so helpful, and I love being able to track my child's vaccination history online. The facility is clean and the staff is friendly."</p>
+                                            <p class="font-weight-bold mb-0">- James T.</p>
+                                        </div>
+                                    </div>
+                                    <div class="carousel-item">
+                                        <div class="testimonial text-center p-4">
+                                            <div class="mb-3">
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                                <span class="me-1"><i class="fas fa-star text-warning"></i></span>
+                                            </div>
+                                            <p class="mb-3">"As a first-time parent, I was anxious about vaccinations, but the staff here made me feel confident and informed. They answered all my questions and provided excellent care."</p>
+                                            <p class="font-weight-bold mb-0">- Emily R.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const feedbackList = document.getElementById('feedbackList');
+                const feedbackCards = document.querySelectorAll('.feedback-card');
+                const feedbackArray = Array.from(feedbackCards);
+                
+                // Sorting functions
+                document.getElementById('sortNewest').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sortFeedback('newest');
+                });
+                
+                document.getElementById('sortOldest').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sortFeedback('oldest');
+                });
+                
+                document.getElementById('sortHighest').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sortFeedback('highest');
+                });
+                
+                document.getElementById('sortLowest').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sortFeedback('lowest');
+                });
+                
+                function sortFeedback(criteria) {
+                    // Clone the feedback list
+                    const sortedArray = Array.from(feedbackArray);
+                    
+                    // Sort based on criteria
+                    switch(criteria) {
+                        case 'newest':
+                            sortedArray.sort((a, b) => {
+                                const dateA = new Date(a.querySelector('.text-muted').textContent);
+                                const dateB = new Date(b.querySelector('.text-muted').textContent);
+                                return dateB - dateA;
+                            });
+                            break;
+                        case 'oldest':
+                            sortedArray.sort((a, b) => {
+                                const dateA = new Date(a.querySelector('.text-muted').textContent);
+                                const dateB = new Date(b.querySelector('.text-muted').textContent);
+                                return dateA - dateB;
+                            });
+                            break;
+                        case 'highest':
+                            sortedArray.sort((a, b) => {
+                                const ratingA = parseInt(a.querySelector('.badge').textContent);
+                                const ratingB = parseInt(b.querySelector('.badge').textContent);
+                                return ratingB - ratingA;
+                            });
+                            break;
+                        case 'lowest':
+                            sortedArray.sort((a, b) => {
+                                const ratingA = parseInt(a.querySelector('.badge').textContent);
+                                const ratingB = parseInt(b.querySelector('.badge').textContent);
+                                return ratingA - ratingB;
+                            });
+                            break;
+                    }
+                    
+                    // Clear the current list
+                    const parentElement = document.querySelector('.feedback-list');
+                    if (parentElement) {
+                        parentElement.innerHTML = '';
+                        
+                        // Append sorted items
+                        sortedArray.forEach(card => {
+                            parentElement.appendChild(card);
+                        });
+                    }
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Trang chủ - Hệ thống Quản lý Tiêm chủng</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Hero Section -->
+        <div class="container-fluid p-0">
+            <div class="hero-section text-center text-white p-5">
+                <h1 class="display-4">Chào mừng đến với Trung tâm Tiêm chủng</h1>
+                <p class="lead">Bảo vệ sức khỏe con bạn với dịch vụ tiêm chủng chất lượng</p>
+                <a href="/services" class="btn btn-primary btn-lg">Dịch vụ của chúng tôi</a>
+                <a href="/register" class="btn btn-outline-light btn-lg ms-2">Đăng ký ngay</a>
+            </div>
+        </div>
+        
+        <!-- About Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h2 class="section-heading">Tại sao chọn Trung tâm Tiêm chủng của chúng tôi</h2>
+                        <hr class="divider my-4">
+                        <p class="text-muted mb-5">Chúng tôi cung cấp dịch vụ tiêm chủng toàn diện cho trẻ em ở mọi độ tuổi, 
+                            đảm bảo các em được tiêm đúng vắc-xin vào đúng thời điểm. Trung tâm của chúng tôi tuân thủ 
+                            các tiêu chuẩn cao nhất về an toàn và chăm sóc.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-user-md text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Đội ngũ chuyên gia</h3>
+                            <p class="text-muted mb-0">Đội ngũ của chúng tôi gồm các chuyên gia y tế được chứng nhận chuyên về chăm sóc nhi khoa.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-clinic-medical text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Cơ sở hiện đại</h3>
+                            <p class="text-muted mb-0">Cơ sở vật chất tiên tiến với hệ thống bảo quản và xử lý vắc-xin đúng chuẩn.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-calendar-check text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Đặt lịch dễ dàng</h3>
+                            <p class="text-muted mb-0">Đặt lịch hẹn trực tuyến và nhận nhắc nhở kịp thời cho các mũi tiêm chủng.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <i class="fas fa-4x fa-heartbeat text-primary mb-4"></i>
+                            <h3 class="h4 mb-2">Chăm sóc toàn diện</h3>
+                            <p class="text-muted mb-0">Kế hoạch tiêm chủng đầy đủ được điều chỉnh phù hợp với nhu cầu của con bạn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Services Section -->
+        <section class="bg-light py-5">
+            <div class="container">
+                <h2 class="text-center mb-4">Dịch vụ của chúng tôi</h2>
+                <div class="row">
+                    <div th:each="service : ${services}" th:if="${service.active}" class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${service.name}">Tên dịch vụ</h5>
+                                <p class="card-text" th:text="${#strings.abbreviate(service.description, 150)}">Mô tả dịch vụ</p>
+                                <p class="card-text font-weight-bold" th:text="${service.price + ' VNĐ'}">0 VNĐ</p>
+                                <a th:href="@{'/services/' + ${service.id}}" class="btn btn-primary">Tìm hiểu thêm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="/services" class="btn btn-outline-primary">Xem tất cả dịch vụ</a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Testimonials Section -->
+        <section class="py-5">
+            <div class="container">
+                <h2 class="text-center mb-4">Phụ huynh nói gì về chúng tôi</h2>
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="text-center mb-3">
+                            <div class="mb-2">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i th:if="${averageRating % 1 >= 0.5}" class="fas fa-star-half-alt text-warning"></i>
+                                <i th:if="${averageRating % 1 < 0.5}" class="far fa-star text-warning"></i>
+                            </div>
+                            <h3 class="h4" th:text="${#numbers.formatDecimal(averageRating, 1, 1)} + ' trên 5'">4.5 trên 5</h3>
+                            <p class="text-muted" th:text="${highRatingsCount} + ' phụ huynh đánh giá chúng tôi 4+ sao'">100 phụ huynh đánh giá chúng tôi 4+ sao</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call-to-Action Section -->
+        <section class="bg-primary text-white py-5">
+            <div class="container text-center">
+                <h2 class="mb-4">Đăng ký và đặt lịch tiêm chủng cho con bạn ngay hôm nay</h2>
+                <a href="/register" class="btn btn-light btn-xl me-3">Đăng ký ngay</a>
+                <a href="/vaccine-guide" class="btn btn-outline-light btn-xl">Tìm hiểu về vắc-xin</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

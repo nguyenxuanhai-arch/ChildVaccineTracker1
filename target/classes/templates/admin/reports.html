@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Reports - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <h1 class="h3 mb-4 text-gray-800">System Reports</h1>
+            
+            <!-- Summary Cards -->
+            <div class="row">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Monthly Revenue</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${'$' + #numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 2, 'POINT')}">$0.00</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Completed Appointments</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${completedAppointments}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Pending Appointments</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${pendingAppointments}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Successful Payments</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${successfulPayments}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Range Selector -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Select Date Range for Reports</h6>
+                </div>
+                <div class="card-body">
+                    <form id="reportDateRangeForm" method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Generate Reports</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Revenue Chart -->
+            <div class="row">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Revenue Analysis</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Payment Methods Distribution</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie">
+                                <canvas id="paymentMethodsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments & Services Statistics -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Appointment Status Distribution</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie">
+                                <canvas id="appointmentStatusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Popular Services</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-bar">
+                                <canvas id="servicesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Demographics & Vaccinations -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">User Growth</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="userGrowthChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Vaccinations by Age Group</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-bar">
+                                <canvas id="vaccinationsByAgeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Export Reports</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <button id="exportRevenueCSV" class="btn btn-primary btn-block">
+                                <i class="fas fa-file-csv me-2"></i> Revenue Report
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button id="exportAppointmentsCSV" class="btn btn-success btn-block">
+                                <i class="fas fa-file-csv me-2"></i> Appointments Report
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button id="exportVaccinationsCSV" class="btn btn-info btn-block">
+                                <i class="fas fa-file-csv me-2"></i> Vaccinations Report
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button id="exportUsersCSV" class="btn btn-warning btn-block">
+                                <i class="fas fa-file-csv me-2"></i> Users Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script th:src="@{/js/chart-init.js}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Set default date range for the form (last 30 days)
+                const today = new Date();
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                
+                document.getElementById('endDate').valueAsDate = today;
+                document.getElementById('startDate').valueAsDate = thirtyDaysAgo;
+                
+                // Initialize charts with sample data (will be replaced with API data)
+                initCharts();
+                
+                // Handle form submission to reload charts with new date range
+                document.getElementById('reportDateRangeForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    
+                    // Reload charts with new date range
+                    fetchReportData(startDate, endDate);
+                });
+                
+                // Initialize export buttons
+                document.getElementById('exportRevenueCSV').addEventListener('click', function() {
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    window.location.href = `/api/admin/reports/revenue/export?startDate=${startDate}&endDate=${endDate}`;
+                });
+                
+                document.getElementById('exportAppointmentsCSV').addEventListener('click', function() {
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    window.location.href = `/api/admin/reports/appointments/export?startDate=${startDate}&endDate=${endDate}`;
+                });
+                
+                document.getElementById('exportVaccinationsCSV').addEventListener('click', function() {
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    window.location.href = `/api/admin/reports/vaccinations/export?startDate=${startDate}&endDate=${endDate}`;
+                });
+                
+                document.getElementById('exportUsersCSV').addEventListener('click', function() {
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    window.location.href = `/api/admin/reports/users/export?startDate=${startDate}&endDate=${endDate}`;
+                });
+            });
+            
+            function initCharts() {
+                // Initialize the charts with empty data - will be populated by API calls
+                initRevenueChart([], []);
+                initPaymentMethodsChart([], []);
+                initAppointmentStatusChart();
+                initServicesChart();
+                initUserGrowthChart();
+                initVaccinationsByAgeChart();
+            }
+            
+            function fetchReportData(startDate, endDate) {
+                // Fetch data from APIs and update charts
+                fetch(`/api/admin/dashboard/revenue-chart?startDate=${startDate}&endDate=${endDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateRevenueChart(data.labels, data.revenueData);
+                    });
+                
+                fetch(`/api/admin/dashboard/payment-chart?startDate=${startDate}&endDate=${endDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updatePaymentMethodsChart(data.labels, data.data);
+                    });
+                
+                // Add additional fetch calls for other charts...
+            }
+        </script>
+    </div>
+</body>
+</html>

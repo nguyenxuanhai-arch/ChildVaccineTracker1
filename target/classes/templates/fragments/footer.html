@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Footer</title>
+</head>
+<body>
+    <footer th:fragment="footer" class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>&copy; Vaccination Management System <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2023</span></span>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
