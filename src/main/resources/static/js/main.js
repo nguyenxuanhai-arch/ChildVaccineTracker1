@@ -257,6 +257,12 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
+// Initialize notification system
+document.addEventListener('DOMContentLoaded', () => {
+    // Create global notification instance
+    window.notifications = new NotificationSystem();
+});
+
 // Export functions for global use
 window.utils = utils;
 window.showToast = showToast;
